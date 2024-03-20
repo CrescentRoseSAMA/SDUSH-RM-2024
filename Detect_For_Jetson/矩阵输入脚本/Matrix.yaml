@@ -1,0 +1,73 @@
+%YAML:1.0
+---
+Infantry_1Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1., 2., 0., 2., 0., 1., 0., 0., 1. ]
+Infantry_1DistCoeffs_Matrix: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1., 2., 3., 4., 5. ]
+...
+---
+Infantry_1Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 5., 2., 0., 1., 2., 5., 0., 0., 1. ]
+Infantry_1DistCoeffs_Matrix: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1., 2., 5., 4., 6. ]
+...
+---
+Infantry_1Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1., 5., 4., 4., 5., 5., 0., 0., 1. ]
+Infantry_1DistCoeffs_Matrix: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1., 2., 3., 4., 5. ]
+...
+---
+Infantry_1_Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 7., 8., 9., 1., 2., 3., 4., 5., 6. ]
+Infantry_1_DistCoeffs_Matrix: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1., 2., 3., 4., 6. ]
+...
+---
+Infantry_1_Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ -1., -2., -3., -4., -5., -6., -7., -8.5648999999999997e+00,
+       -7.9999999999999996e-07 ]
+Infantry_1_DistCoeffs_Matrix: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ -4.9999999999999998e-08, -9., 5.0000000000000002e-05, 6., 4. ]
+...
+---
+Infantry_1_Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1., 2., 3., 4., 5., 6., 7., 8., 9. ]
+Infantry_1_DistCoeffs: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1., 2., 3., 4., 5. ]
