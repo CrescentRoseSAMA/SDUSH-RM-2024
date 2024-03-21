@@ -1,12 +1,46 @@
 %YAML:1.0
 ---
-Infantry_1_Camera_Matrix: !!opencv-matrix
+MV-1_Camera_Matrix: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 1., 2., 3., 4., 5., 6., 7., 8., 9. ]
-Infantry_1_DistCoeffs: !!opencv-matrix
+   data: [1.0378475304261301e+03, 0., 3.5084063292030100e+02,
+        0., 1.0382655759513300e+03, -1.8813208130966199e+01,
+        0., 0., 1.]
+MV-1_DistCoeffs: !!opencv-matrix
    rows: 5
    cols: 1
    dt: d
-   data: [ 1., 2., 3., 4., 5. ]
+   data: [ -7.1198338930627603e-02, 7.9778689423635904e-02,
+       -5.2401559045223700e-03, 4.6902247423375202e-03,
+       3.4289238283888503e-02 ]
+...
+---
+Infantry_Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1.0264246581689099e+03, 0., 3.0713015155739703e+02, 0.,
+       1.0226154507932901e+03, -4.5390854426773304e+00, 0., 0., 1. ]
+Infantry_DistCoeffs: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ -9.9365151195708795e-02, 1.2855503312207700e-01,
+       5.7102615100798702e-04, -4.4008004169347600e-03,
+       -4.8161272650006898e-01 ]
+...
+---
+Infantry_Big_Armor_Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 2.0443544487088000e+03, 0., 3.5248855087252701e+02, 0.,
+       2.0332084105066899e+03, -1.9438813831188501e+01, 0., 0., 1. ]
+Infantry_Big_Armor_DistCoeffs: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ -1.0229175430126400e-01, 8.0422588021196095e-01,
+       6.4811299748343300e-03, 4.3525751261337103e-03,
+       -7.7827682476859099e+00 ]

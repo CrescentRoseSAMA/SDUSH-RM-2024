@@ -47,11 +47,13 @@ double Get_Area(cv::Point2f pts[4])
 /*
  * 筛选最佳装甲板，无结果返回false
  */
-bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t Armor)
+bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t& Armor)
 {
-    bool flag = false;
+    bool flag = true;
     std::sort(res.begin(), res.end(), [](bbox_t res1, bbox_t res2)
               { return Get_Area(res1.pts) > Get_Area(res2.pts); }); // 按面积进行从大到小排序
+    Armor = res[0];
+#if 0
     for (auto &x : res)
     {
         if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
@@ -61,5 +63,6 @@ bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t Armor)
             break;
         }
     }
+#endif
     return flag;
 }

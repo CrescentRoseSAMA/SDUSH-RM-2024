@@ -4,21 +4,23 @@ using namespace std;
 int main()
 {
     char Flag;
-    string FileName, CameraName;
-    FileStorage fs;
+    string FileName;
     Mv_Camera cap;
-    cout << "Need to set Camera_Name?[Y/N]" << '\n';
+    cout << "Now CameraName : " << cap.Get_Camera_Name() << endl;
+    cout << "Want to Change Name ? [Y/N]" << endl;
     cin >> Flag;
     if (Flag == 'Y' || Flag == 'y')
     {
-        cout << "Please Iuput Camera_Name setting" << '\n';
-        cin >> CameraName;
-        cap.Set_Camera_Name(CameraName);
-        CameraName = cap.Get_Camera_Name();
-        cout << "Now Camera_Name is: " << CameraName << '\n';
+        cout << "Input name :" << endl;
+        string tmpname;
+        cin >> tmpname;
+        cap.Set_Camera_Name(tmpname);
+        cout << "Reboot to Change name" << endl;
+        return 0;
     }
     cout << "Please Input Absolute Path Of File" << '\n';
     cin >> FileName;
+    FileStorage fs;
     string name = cap.Get_Camera_Name();
     while (true)
     {
@@ -35,15 +37,16 @@ int main()
         cout << '\n';
         cout << "Please Input Distcoeffs" << '\n';
         double Distcoeffs[5];
-        cout << '\n';
         for (int i = 0; i < 5; i++)
         {
             cin >> Distcoeffs[i];
         }
-        Mat camera_matrix = (Mat_<double>(3, 3) << Camera_Matrix[0][0], Camera_Matrix[0][1], Camera_Matrix[0][2],
-                             Camera_Matrix[1][0], Camera_Matrix[1][1], Camera_Matrix[1][2],
-                             Camera_Matrix[2][0], Camera_Matrix[2][1], Camera_Matrix[2][2]);
+        Mat camera_matrix = (Mat_<double>(3, 3) << Camera_Matrix[0][0], Camera_Matrix[0][1], Camera_Matrix[0][2], Camera_Matrix[1][0], Camera_Matrix[1][1], Camera_Matrix[1][2], Camera_Matrix[2][0], Camera_Matrix[2][1], Camera_Matrix[2][2]);
         Mat distcoeffs = (Mat_<double>(5, 1) << Distcoeffs[0], Distcoeffs[1], Distcoeffs[2], Distcoeffs[3], Distcoeffs[4]);
+        cout << "Want transport cameramatrix[Y/N] ?" << endl;
+        cin >> Flag;
+        if (Flag == 'Y' || Flag == 'y')
+            camera_matrix = camera_matrix.t();
         string Key_Camera_Matrix = name + (string) "_Camera_Matrix";
         fs << Key_Camera_Matrix << camera_matrix;
         string Key_DistCoeffs = name + (string) "_DistCoeffs";
@@ -64,6 +67,4 @@ int main()
         if (Flag == 'N' || Flag == 'n')
             break;
     }
-    cout << " Script Over " << '\n';
-    return 0;
 }
