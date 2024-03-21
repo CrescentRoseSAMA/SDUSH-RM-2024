@@ -25,7 +25,7 @@ int main()
     Seri.uart_setup();
     Cap.Open_Camera();
     Cap.Set_Ae_Mode(false); // 关闭自动曝光
-    Cap.Set_Ex_Time(8);     // 设置自动曝光时间为8ms
+    Cap.Set_Ex_Time(8);     // 设置曝光时间为8ms
     while (true)
     {
         TimeCount.Start();
