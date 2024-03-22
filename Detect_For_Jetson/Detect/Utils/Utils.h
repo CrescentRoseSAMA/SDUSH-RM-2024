@@ -29,7 +29,7 @@ public:
  * 常用函数接口
  */
 
-double Get_Area(cv::Point2f pts[4]);                          // 通过海伦公式计算不规则装甲板的面积
-bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t& Armor); // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
-void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img);        // 在当前帧图像上画出识别到的装甲板
+double Get_Area(cv::Point2f pts[4]);                           // 通过海伦公式计算不规则装甲板的面积
+bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor); // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
+void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img);         // 在当前帧图像上画出识别到的装甲板
 #endif

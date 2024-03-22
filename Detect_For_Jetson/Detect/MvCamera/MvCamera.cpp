@@ -16,6 +16,11 @@ Mv_Camera::~Mv_Camera()
     CameraUnInit(handle); // 反初始化相机，释放相机资源
 }
 
+void Mv_Camera::Close_Camera()
+{
+    CameraUnInit(handle); // 手动指定反初始化相机，释放资源
+}
+
 void Mv_Camera::Open_Camera()
 {
     CameraPlay(handle);                                    // 开启相机接受图像

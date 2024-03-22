@@ -13,7 +13,7 @@ const string onnx_file3 = "../model-cache/model-opt-3.onnx";
 
 int main()
 {
-#if 0
+#if 1
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
@@ -52,7 +52,7 @@ int main()
         waitKey(10);
     }
 #endif
-#if 1
+#if 0
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
