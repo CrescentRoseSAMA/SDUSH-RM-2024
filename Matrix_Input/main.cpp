@@ -22,9 +22,8 @@ int main()
         cin >> name;
         cap.Set_Camera_Name(name);
         cap.Close_Camera();
-        cap.Init_Camera();
-        name = cap.Get_Camera_Name();
-        cout << "当前相机名称更改为： " << name << endl;
+        cout << "重启以更改" << endl;
+        return 0;
     }
     cout << "请输入参数文件路径" << endl;
     cin >> Path;
@@ -43,7 +42,7 @@ int main()
     Mat Camera_Matrix = (Mat_<double>(3, 3) << K[0][0], K[0][1], K[0][2],
                          K[1][0], K[1][1], K[1][2],
                          K[2][0], K[2][1], K[2][2]);
-    Mat Distcoeffs = (Mat_<double>(5, 1) << Dist[0], Dist[1], Dist[2], Dist[3], Dist[4]);
+    Mat Distcoeffs = (Mat_<double>(5, 1) << Dist[0], Dist[1], Dist[3], Dist[4], Dist[2]);
     if (flag == 'Y' || flag == 'y')
         fs << name + "_Camera_Matrix" << Camera_Matrix.t();
     else
