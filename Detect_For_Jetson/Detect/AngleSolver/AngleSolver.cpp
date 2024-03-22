@@ -4,8 +4,9 @@
 #define DEGUB 0
 using namespace std;
 
-AngleSolver::AngleSolver(string Camera_Name)
+AngleSolver::AngleSolver(string Name)
 {
+    Camera_Name = Name;
     X_Pose = Y_Pose = Z_Pose = 0;
     Point_3D.clear();
     Point_2D.clear();
@@ -146,8 +147,8 @@ void AngleSolver::Angle_Compensate()
     // 相机坐标系转换到云台或者枪口坐标系下的y轴补偿或者z轴补偿
     // 假定 y_Dist+Y_of_Gun=Y_pose
     // 以及 z_Dist+Z_of_Gun=Z_pose
-    Y_Pose -= Y_Distance_Between_Gun_And_Camera;
-    Z_Pose -= Z_Distance_Between_Gun_And_Camera;
+    Y_Pose -= (Y_Distance_Between_Gun_And_Camera.at(Camera_Name));
+    Z_Pose -= (Z_Distance_Between_Gun_And_Camera.at(Camera_Name));
     // 转化到枪口坐标系，重新计算pitch，yaw角度以及距离Distence
     Pitch = -atan(Y_Pose / sqrt(X_Pose * X_Pose + Z_Pose * Z_Pose));
     Yaw = atan(X_Pose / Z_Pose);

@@ -23,12 +23,12 @@ int main()
     bbox_t Armor;
     string Camera_Name;
     Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
-    AngleSolver Angle(Camera_Name);                 // 初始化角度解算类
+    cout << "相机名称为 :" << Camera_Name << endl;
+    AngleSolver Angle(Camera_Name);      // 初始化角度解算类
     Seri.uart_setup();                   // 初始化串口
     Cap.Open_Camera();                   // 打开相机，使之可接收图片
     Cap.Set_Ae_Mode(false);              // 关闭自动曝光
     Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
-    cout << "相机名称为 :" << Camera_Name << endl;
     while (true)
     {
       //  TimeCount.Start();

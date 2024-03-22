@@ -38,8 +38,12 @@ const ArmorType Small = 2;
  *矫正参数
  */
 
-const int Y_Distance_Between_Gun_And_Camera = 120; // 枪口与相机间的Y轴坐标
-const int Z_Distance_Between_Gun_And_Camera = 0;   // 枪口与相机间的Z轴坐标
+const unordered_map<string,double> Y_Distance_Between_Gun_And_Camera{
+    {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0}
+}; // 枪口与相机间的Y轴坐标
+const unordered_map<string,double> Z_Distance_Between_Gun_And_Camera{
+     {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0}
+};   // 枪口与相机间的Z轴坐标
 
 /*
  *相机内参矩阵以及畸变矩阵存储位置
@@ -59,6 +63,7 @@ const int Enemy_Color = Red;
 class AngleSolver
 {
 private:
+    string Camera_Name;
     vector<Point3f> Point_3D;
     vector<Point2f> Point_2D;
     Mat Camera_Matrix;
@@ -73,7 +78,7 @@ private:
     double Distance;
 
 public:
-    AngleSolver(string Camera_Name);
+    AngleSolver(string Name);
 
     ~AngleSolver();
 
