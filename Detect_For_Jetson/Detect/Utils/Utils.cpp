@@ -49,7 +49,7 @@ double Get_Area(cv::Point2f pts[4])
  */
 bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, string Camera_Name)
 {
-    bool flag = false;
+    bool flag = true;
     std::sort(res.begin(), res.end(), [](bbox_t res1, bbox_t res2)
               { return Get_Area(res1.pts) > Get_Area(res2.pts); }); // 按面积进行从大到小排序
     Armor = res[0];
@@ -60,10 +60,11 @@ bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, string Camera_Name
             if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
             {
                 Armor = x;
-                flag = true;
+                return true;
                 break;
             }
         }
+        flag = false;
     }
     return flag;
 }

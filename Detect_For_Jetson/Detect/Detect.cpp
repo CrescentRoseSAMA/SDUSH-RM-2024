@@ -23,14 +23,15 @@ int main()
     bbox_t Armor;
     string Camera_Name;
     Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
-    AngleSolver Angle();                 // 初始化角度解算类
+    AngleSolver Angle(Camera_Name);                 // 初始化角度解算类
     Seri.uart_setup();                   // 初始化串口
     Cap.Open_Camera();                   // 打开相机，使之可接收图片
     Cap.Set_Ae_Mode(false);              // 关闭自动曝光
     Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
+    cout << "相机名称为 :" << Camera_Name << endl;
     while (true)
     {
-        TimeCount.Start();
+      //  TimeCount.Start();
         Cap.read(Img);            // 读入当前帧图像
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
@@ -49,7 +50,7 @@ int main()
                 cout << "No Matching Armor !" << '\n';
         }
         Plot_Box(Res, Img); // 画出检测框
-        TimeCount.End();
+       // TimeCount.End();
         imshow("Show", Img);
         waitKey(10);
     }
