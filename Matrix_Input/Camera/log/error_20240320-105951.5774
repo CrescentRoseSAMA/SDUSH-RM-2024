@@ -1,0 +1,4 @@
+Log file created at: 2024/03/20 10:59:51
+Running on machine: ruby
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0320 10:59:51.827975  5774 MVCAMAPI.cpp:350] CameraInit Failed, err:-19,Version:2.1.0.37,FriendlyName:à,SN:PÒÛ÷þ
