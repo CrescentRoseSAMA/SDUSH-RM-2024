@@ -1,70 +1,63 @@
-#include "Mv_Camera.h"
+#include "MvCamera.h"
 using namespace cv;
 using namespace std;
 int main()
 {
-    char Flag;
-    string FileName;
+    string name;
     Mv_Camera cap;
-    cout << "Now CameraName : " << cap.Get_Camera_Name() << endl;
-    cout << "Want to Change Name ? [Y/N]" << endl;
-    cin >> Flag;
-    if (Flag == 'Y' || Flag == 'y')
-    {
-        cout << "Input name :" << endl;
-        string tmpname;
-        cin >> tmpname;
-        cap.Set_Camera_Name(tmpname);
-        cout << "Reboot to Change name" << endl;
-        return 0;
-    }
-    cout << "Please Input Absolute Path Of File" << '\n';
-    cin >> FileName;
+    double K[3][3];
+    double Dist[5];
     FileStorage fs;
-    string name = cap.Get_Camera_Name();
-    while (true)
+    string Path;
+    char flag;
+    // 设置相机名称以及检查相机名称
+    name = cap.Get_Camera_Name();
+    cout << "相机名称为 :" << name << endl;
+    cout << "是否更改相机名称[Y/N]" << endl;
+    cin >> flag;
+    if (flag == 'Y' || flag == 'y')
     {
-        fs.open(FileName, FileStorage::APPEND);
-        cout << "Please Input Camera_Matrix" << '\n';
-        double Camera_Matrix[3][3];
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                cin >> Camera_Matrix[i][j];
-            }
-        }
-        cout << '\n';
-        cout << "Please Input Distcoeffs" << '\n';
-        double Distcoeffs[5];
-        for (int i = 0; i < 5; i++)
-        {
-            cin >> Distcoeffs[i];
-        }
-        Mat camera_matrix = (Mat_<double>(3, 3) << Camera_Matrix[0][0], Camera_Matrix[0][1], Camera_Matrix[0][2], Camera_Matrix[1][0], Camera_Matrix[1][1], Camera_Matrix[1][2], Camera_Matrix[2][0], Camera_Matrix[2][1], Camera_Matrix[2][2]);
-        Mat distcoeffs = (Mat_<double>(5, 1) << Distcoeffs[0], Distcoeffs[1], Distcoeffs[2], Distcoeffs[3], Distcoeffs[4]);
-        cout << "Want transport cameramatrix[Y/N] ?" << endl;
-        cin >> Flag;
-        if (Flag == 'Y' || Flag == 'y')
-            camera_matrix = camera_matrix.t();
-        string Key_Camera_Matrix = name + (string) "_Camera_Matrix";
-        fs << Key_Camera_Matrix << camera_matrix;
-        string Key_DistCoeffs = name + (string) "_DistCoeffs";
-        fs << Key_DistCoeffs << distcoeffs;
-        fs.release();
-        fs.open(FileName, FileStorage::READ);
-        Mat ans1, ans2;
-        fs[Key_Camera_Matrix] >> ans1;
-        fs[Key_DistCoeffs] >> ans2;
-        cout << "Input Over" << '\n';
-        cout << "Camera_Matrix :" << '\n';
-        cout << ans1 << '\n';
-        cout << "DistCoeffs" << '\n';
-        cout << ans2 << '\n';
-        fs.release();
-        cout << "Continue ?[Y/N]" << '\n';
-        cin >> Flag;
-        if (Flag == 'N' || Flag == 'n')
-            break;
+        cout << "输入相机名称" << endl;
+        name.clear();
+        cin >> name;
+        cap.Set_Camera_Name(name);
+        cap.Close_Camera();
+        cap.Init_Camera();
+        name = cap.Get_Camera_Name();
+        cout << "当前相机名称更改为： " << name << endl;
     }
+    cout << "请输入参数文件路径" << endl;
+    cin >> Path;
+    fs.open(Path, FileStorage::APPEND);
+    cout << "输入内参矩阵，是否转置[Y/N]" << endl;
+    cin >> flag;
+    cout << "请输入" << endl;
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+        {
+            cin >> K[i][j];
+        }
+    cout << "输入畸变参数(k1,k2,k3,p1,p2)" << endl;
+    for (int i = 0; i < 5; i++)
+        cin >> Dist[i];
+    Mat Camera_Matrix = (Mat_<double>(3, 3) << K[0][0], K[0][1], K[0][2],
+                         K[1][0], K[1][1], K[1][2],
+                         K[2][0], K[2][1], K[2][2]);
+    Mat Distcoeffs = (Mat_<double>(5, 1) << Dist[0], Dist[1], Dist[2], Dist[3], Dist[4]);
+    if (flag == 'Y' || flag == 'y')
+        fs << name + "_Camera_Matrix" << Camera_Matrix.t();
+    else
+        fs << name + "_Camera_Matrix" << Camera_Matrix;
+    fs << name + "_DistCoeffs" << Distcoeffs;
+    fs.release();
+    fs.open(Path, FileStorage::READ);
+    fs[name + "_Camera_Matrix"] >> Camera_Matrix;
+    fs[name + "_DistCoeffs"] >> Distcoeffs;
+    cout << "输入的内参矩阵为\n"
+         << Camera_Matrix << endl;
+    cout << "输入的畸变参数为\n"
+         << Distcoeffs << endl;
+    fs.release();
+    cout << "Over" << endl;
+    return 0;
 }

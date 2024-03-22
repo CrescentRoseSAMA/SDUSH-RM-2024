@@ -61,6 +61,5 @@ bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor)
             break;
         }
     }
-
     return flag;
 }

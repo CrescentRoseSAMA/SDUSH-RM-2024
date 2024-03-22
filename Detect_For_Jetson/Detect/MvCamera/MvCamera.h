@@ -23,6 +23,8 @@ public:
 
     ~Mv_Camera(); // 相机反初始化,即关闭相机后释放资源
 
+    void Init_Camera(); // 手动初始化相机
+
     void Close_Camera(); // 手动关闭相机释放资源
 
     void Open_Camera(); // 打开相机准备接收图像

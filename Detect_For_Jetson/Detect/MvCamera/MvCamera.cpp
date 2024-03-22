@@ -2,13 +2,8 @@
 
 Mv_Camera::Mv_Camera()
 {
-    CameraSdkInit(1);                                // 初始化SDK开发
-    handle = -1;                                     // 初始化相机句柄
-    tSdkCameraDevInfo infos;                         // 存储相机设备信息
-    int nums = 2;                                    // 存储相机数量
-    CameraEnumerateDevice(&infos, &nums);            // 枚举所有的相机设备并将其信息写入infos，相机数量写入nums
-    Camera_Name = std::string(infos.acFriendlyName); // 录入相机名称
-    CameraInit(&infos, -1, -1, &handle);             // 初始化相机，此时会分配相机的句柄
+    CameraSdkInit(1); // 初始化SDK开发
+    Init_Camera();
 }
 
 Mv_Camera::~Mv_Camera()
@@ -19,6 +14,16 @@ Mv_Camera::~Mv_Camera()
 void Mv_Camera::Close_Camera()
 {
     CameraUnInit(handle); // 手动指定反初始化相机，释放资源
+}
+
+void Mv_Camera::Init_Camera()
+{
+    handle = -1;                                     // 初始化相机句柄
+    tSdkCameraDevInfo infos;                         // 存储相机设备信息
+    int nums = 2;                                    // 存储相机数量
+    CameraEnumerateDevice(&infos, &nums);            // 枚举所有的相机设备并将其信息写入infos，相机数量写入nums
+    Camera_Name = std::string(infos.acFriendlyName); // 录入相机名称
+    CameraInit(&infos, -1, -1, &handle);             // 初始化相机，此时会分配相机的句柄
 }
 
 void Mv_Camera::Open_Camera()
