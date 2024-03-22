@@ -65,7 +65,7 @@ int main()
     bbox_t Armor;
     string Camera_Name;
     Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
-    AngleSolver Angle();                 // 初始化角度解算类
+    AngleSolver Angle(Camera_Name);      // 初始化角度解算类
     Seri.uart_setup();                   // 初始化串口
     Cap.Open_Camera();                   // 打开相机，使之可接收图片
     Cap.Set_Ae_Mode(false);              // 关闭自动曝光

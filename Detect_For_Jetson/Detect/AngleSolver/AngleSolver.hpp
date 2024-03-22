@@ -39,10 +39,10 @@ const ArmorType Small = 2;
  */
 
 const unordered_map<string,double> Y_Distance_Between_Gun_And_Camera{
-    {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0}
+    {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0},{"MV-1",0}
 }; // 枪口与相机间的Y轴坐标
 const unordered_map<string,double> Z_Distance_Between_Gun_And_Camera{
-     {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0}
+     {"Infantry_big",0},{"Infantry_small",0},{"Sentry",0},{"Hero",0},{"MV-1",0}
 };   // 枪口与相机间的Z轴坐标
 
 /*
