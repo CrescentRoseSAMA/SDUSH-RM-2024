@@ -18,14 +18,16 @@ int main()
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
     Serial Seri;
-    AngleSolver Angle(Cap.Get_Camera_Name());
     DataPack Data;
     Mat Img;
     bbox_t Armor;
-    Seri.uart_setup();
-    Cap.Open_Camera();
-    Cap.Set_Ae_Mode(false); // 关闭自动曝光
-    Cap.Set_Ex_Time(8);     // 设置曝光时间为8ms
+    string Camera_Name;
+    Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
+    AngleSolver Angle();                 // 初始化角度解算类
+    Seri.uart_setup();                   // 初始化串口
+    Cap.Open_Camera();                   // 打开相机，使之可接收图片
+    Cap.Set_Ae_Mode(false);              // 关闭自动曝光
+    Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
     while (true)
     {
         TimeCount.Start();
@@ -33,7 +35,7 @@ int main()
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
         {
-            bool status = Find_Best_Armor(Res, Armor); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
+            bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
             if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
@@ -57,15 +59,16 @@ int main()
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
     Serial Seri;
-    AngleSolver Angle(Cap.Get_Camera_Name());
-    cout << Cap.Get_Camera_Name() << endl;
     DataPack Data;
     Mat Img;
     bbox_t Armor;
-    Seri.uart_setup();
-    Cap.Open_Camera();
-    Cap.Set_Ae_Mode(false); // 关闭自动曝光
-    Cap.Set_Ex_Time(8);     // 设置曝光时间为8ms
+    string Camera_Name;
+    Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
+    AngleSolver Angle();                 // 初始化角度解算类
+    Seri.uart_setup();                   // 初始化串口
+    Cap.Open_Camera();                   // 打开相机，使之可接收图片
+    Cap.Set_Ae_Mode(false);              // 关闭自动曝光
+    Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
     while (true)
     {
      //   TimeCount.Start();
@@ -73,7 +76,7 @@ int main()
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
         {
-            bool status = Find_Best_Armor(Res, Armor); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
+            bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
             if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算

@@ -47,18 +47,22 @@ double Get_Area(cv::Point2f pts[4])
 /*
  * 筛选最佳装甲板，无结果返回false
  */
-bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor)
+bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, string Camera_Name)
 {
     bool flag = false;
     std::sort(res.begin(), res.end(), [](bbox_t res1, bbox_t res2)
               { return Get_Area(res1.pts) > Get_Area(res2.pts); }); // 按面积进行从大到小排序
-    for (auto &x : res)
+    Armor = res[0];
+    if (Camera_Name == "Sentry") // 若是哨兵，选择击打颜色来区分友方敌方
     {
-        if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
+        for (auto &x : res)
         {
-            Armor = x;
-            flag = true;
-            break;
+            if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
+            {
+                Armor = x;
+                flag = true;
+                break;
+            }
         }
     }
     return flag;
