@@ -13,7 +13,7 @@ const string onnx_file3 = "../model-cache/model-opt-3.onnx";
 
 int main()
 {
-#if 0
+#if 1
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
@@ -40,7 +40,7 @@ int main()
             if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
-                Angle.Reprojection(Img);
+                Angle.Reprojection(Img);      // 重投影检测
                 Angle.Get_Datapack(Data);     // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
@@ -58,7 +58,7 @@ int main()
         waitKey(10);
     }
 #endif
-#if 1
+#if 0
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;

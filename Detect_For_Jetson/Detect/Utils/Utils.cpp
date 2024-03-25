@@ -23,9 +23,9 @@ void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img)
     for (auto &obj : res)
     {
         cv::line(img, obj.pts[0], obj.pts[1], colors[2], 2);
-        cv::line(img, obj.pts[1], obj.pts[2], colors[2], 2);
-        cv::line(img, obj.pts[2], obj.pts[3], colors[2], 2);
-        cv::line(img, obj.pts[3], obj.pts[0], colors[2], 2);
+        cv::line(img, obj.pts[0], obj.pts[2], colors[2], 2);
+        cv::line(img, obj.pts[1], obj.pts[3], colors[2], 2);
+        cv::line(img, obj.pts[3], obj.pts[2], colors[2], 2);
         cv::putText(img, std::to_string(obj.tag_id), obj.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[obj.color_id]);
     }
 }

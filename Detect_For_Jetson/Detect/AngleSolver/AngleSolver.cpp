@@ -158,7 +158,6 @@ void AngleSolver::Angle_Compensate()
 void AngleSolver::Angle_Solve(const Point2f Point[4])
 {
     ArmorType Type = Get_Armor_Type(Point);
-
     Get_Point_3D(Type); // 世界坐标获取
 
     Get_Point_2D(Point); // 像素坐标获取
@@ -166,8 +165,6 @@ void AngleSolver::Angle_Solve(const Point2f Point[4])
     Get_Angle_And_Distance(); // 相机坐标系下的角度解算以及距离计算
 
     Angle_Compensate(); // 偏移量补偿，将相机坐标系下的yaw，pitch角转化为枪口坐标系下的yaw，pitch以及Distance
-
-   // clear(); // 清空两个坐标系
 }
 
 void AngleSolver::Get_Datapack(DataPack &Data)
@@ -178,6 +175,7 @@ void AngleSolver::Get_Datapack(DataPack &Data)
     Data.Angles[0] = Pitch;
     Data.Angles[1] = Yaw;
     Data.dist = Distance;
+    clear(); // 清空两个坐标系
 }
 
 void AngleSolver::Tvec_Print() const
@@ -201,29 +199,21 @@ ArmorType AngleSolver::Get_Armor_Type(const Point2f pos[4])
 
 void AngleSolver::Reprojection(Mat& img)    //重投影测试
 {
-    cout << "Here" << endl;
-    cout << Point_3D << endl;
     Mat R;
-    Rodrigues(Rvec,R);
-    vector<Point2d> Projection;
-    for(auto& x : Point_3D)
-    {
-        Mat res = (Mat_<double>(3,1)<<x.x,x.y,x.z);
-       // cout << "世界点" << res << endl;
-        Mat ans = R*res + Tvec;
-       // cout << "相机点" <<ans << endl;
-        ans/=ans.at<double>(2,0);
-        undistort(ans,ans,Camera_Matrix,DistCoeffs);
-        undistort(img,img,Camera_Matrix,DistCoeffs);
-       // cout << "归一化平面点" << ans;
-        Mat Puv = Camera_Matrix*ans;
-       // cout << "像素点" <<Puv << endl;
-        Projection.push_back(Point2d(Puv.at<double>(0,0),Puv.at<double>(1,0)));
+    Rodrigues(Rvec,R);  // 罗德里格斯公式旋转向量转旋转矩阵
+    vector<Point2d> Projection; //重投影点存储
+    for(auto& x : Point_3D) //将世界坐标系点通过PNP算出的旋转矩阵和平移向量以及相机内参转为像素坐标系下的点
+    {        
+        Mat res = (Mat_<double>(3,1)<<x.x,x.y,x.z); // 世界坐标系矩阵（3*1）
+        Mat ans = R*res + Tvec; // 世界坐标转相机坐标下
+        ans/=ans.at<double>(2,0);   // 转换到归一化坐标系下，但为矫正畸变
+        Mat Puv = Camera_Matrix*ans;    // 归一化坐标系转换到像素坐标系下
+        Projection.push_back(Point2d(Puv.at<double>(0,0),Puv.at<double>(1,0))); // 角点存储
     }
-    line(img, Projection[0], Projection[1], (0,0,255), 1);
-    line(img, Projection[1], Projection[2], (0,0,255), 1);
-    line(img, Projection[2], Projection[3], (0,0,255), 1);
-    line(img, Projection[3], Projection[0], (0,0,255), 1);
+    line(img, Projection[0], Projection[2], Scalar(0,0,255), 3);
+    line(img, Projection[1], Projection[2], Scalar(0,0,255), 3);
+    line(img, Projection[1], Projection[3], Scalar(0,0,255), 3);
+    line(img, Projection[3], Projection[0], Scalar(0,0,255), 3);    // 四点划线
 }
 /*
     todo...
