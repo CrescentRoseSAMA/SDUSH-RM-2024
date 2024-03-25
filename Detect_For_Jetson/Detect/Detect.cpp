@@ -13,7 +13,7 @@ const string onnx_file3 = "../model-cache/model-opt-3.onnx";
 
 int main()
 {
-#if 1
+#if 0
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
@@ -40,6 +40,7 @@ int main()
             if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
+                Angle.Reprojection(Img);
                 Angle.Get_Datapack(Data);     // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
@@ -47,7 +48,9 @@ int main()
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
             }
             else
-                cout << "No Matching Armor !" << '\n';
+                {
+                    Seri.send(0, 0, 0, 0, 0, 0, 0); // 最后一个参数为1表示有装甲板数据发送，为0表示无装甲板数据发送
+                }
         }
         Plot_Box(Res, Img); // 画出检测框
        // TimeCount.End();
@@ -55,7 +58,7 @@ int main()
         waitKey(10);
     }
 #endif
-#if 0
+#if 1
     Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
@@ -78,9 +81,10 @@ int main()
         if (!Res.empty())
         {
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
-            if (status)
+            //if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
+                Angle.Reprojection(Img);
                 Angle.Get_Datapack(Data);     // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
@@ -89,8 +93,8 @@ int main()
                 cout << "Dist是: " <<Data.dist << endl;
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
             }
-            else
-                cout << "No Matching Armor !" << '\n';
+           // else
+               //cout << "No Matching Armor !" << '\n';
         }
         Plot_Box(Res, Img); // 画出检测框
      //   TimeCount.End();

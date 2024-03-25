@@ -98,13 +98,14 @@ public:
 
     void Get_Datapack(DataPack &Data); // 获取数据包,(x,y,z,pitch,yaw,distance)
 
+    void Reprojection(Mat &img); // 重投影测试
+
     void clear();
 
     /*
         todo .....
         1.重力补偿以及空气阻力补偿
         2.卡尔曼滤波预测
-        3.优化解算过程(学习视觉SLAM相关)
     */
 };
 

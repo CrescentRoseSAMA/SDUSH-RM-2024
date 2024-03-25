@@ -167,7 +167,7 @@ void AngleSolver::Angle_Solve(const Point2f Point[4])
 
     Angle_Compensate(); // 偏移量补偿，将相机坐标系下的yaw，pitch角转化为枪口坐标系下的yaw，pitch以及Distance
 
-    clear(); // 清空两个坐标系
+   // clear(); // 清空两个坐标系
 }
 
 void AngleSolver::Get_Datapack(DataPack &Data)
@@ -199,6 +199,32 @@ ArmorType AngleSolver::Get_Armor_Type(const Point2f pos[4])
     return fabs(Ratio - 3.9655) > fabs(Ratio - 2.3150) ? Small : Big;
 }
 
+void AngleSolver::Reprojection(Mat& img)    //重投影测试
+{
+    cout << "Here" << endl;
+    cout << Point_3D << endl;
+    Mat R;
+    Rodrigues(Rvec,R);
+    vector<Point2d> Projection;
+    for(auto& x : Point_3D)
+    {
+        Mat res = (Mat_<double>(3,1)<<x.x,x.y,x.z);
+       // cout << "世界点" << res << endl;
+        Mat ans = R*res + Tvec;
+       // cout << "相机点" <<ans << endl;
+        ans/=ans.at<double>(2,0);
+        undistort(ans,ans,Camera_Matrix,DistCoeffs);
+        undistort(img,img,Camera_Matrix,DistCoeffs);
+       // cout << "归一化平面点" << ans;
+        Mat Puv = Camera_Matrix*ans;
+       // cout << "像素点" <<Puv << endl;
+        Projection.push_back(Point2d(Puv.at<double>(0,0),Puv.at<double>(1,0)));
+    }
+    line(img, Projection[0], Projection[1], (0,0,255), 1);
+    line(img, Projection[1], Projection[2], (0,0,255), 1);
+    line(img, Projection[2], Projection[3], (0,0,255), 1);
+    line(img, Projection[3], Projection[0], (0,0,255), 1);
+}
 /*
     todo...
     1.弹丸重力或者空气阻力补偿
