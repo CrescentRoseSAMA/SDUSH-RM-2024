@@ -174,7 +174,7 @@ void TRTModule::build_engine_from_onnx(const std::string &onnx_file)
     cuMemGetInfo(&free, &total);
     std::cout << "[INFO]: total gpu mem: " << (total >> 20) << "MB, free gpu mem: " << (free >> 20) << "MB" << std::endl;
     std::cout << "[INFO]: max workspace size will use all of free gpu mem" << std::endl;
-    config->setMaxWorkspaceSize(free - (200 << 20));
+    config->setMaxWorkspaceSize(free);
     TRT_ASSERT((engine = builder->buildEngineWithConfig(*network, *config)) != nullptr);
     config->destroy();
     parser->destroy();

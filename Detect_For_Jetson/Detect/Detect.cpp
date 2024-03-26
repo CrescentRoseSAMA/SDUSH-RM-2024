@@ -14,7 +14,6 @@ const string onnx_file3 = "../model-cache/model-opt-3.onnx";
 int main()
 {
 #if 1
-    Timer TimeCount;
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
     Serial Seri;
@@ -28,10 +27,9 @@ int main()
     Seri.uart_setup();              // 初始化串口
     Cap.Open_Camera();              // 打开相机，使之可接收图片
     Cap.Set_Ae_Mode(false);         // 关闭自动曝光
-    Cap.Set_Ex_Time(8);             // 设置曝光时间为8ms
+    Cap.Set_Ex_Time(5);             // 设置曝光时间为5ms
     while (true)
     {
-        //  TimeCount.Start();
         Cap.read(Img);            // 读入当前帧图像
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
@@ -40,7 +38,6 @@ int main()
             if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
-                Angle.Reprojection(Img);      // 重投影检测
                 Angle.Get_Datapack(Data);     // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
@@ -52,10 +49,6 @@ int main()
         {
             Seri.send(0, 0, 0, 0, 0, 0, 0); // 最后一个参数为1表示有装甲板数据发送，为0表示无装甲板数据发送
         }
-        Plot_Box(Res, Img); // 画出检测框
-                            // TimeCount.End();
-        imshow("Show", Img);
-        waitKey(10);
     }
 #endif
 #if 0
@@ -75,29 +68,29 @@ int main()
     Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
     while (true)
     {
-     //   TimeCount.Start();
-        Cap.read(Img);            // 读入当前帧图像
+        TimeCount.Start();
+        Cap.read(Img); // 读入当前帧图像
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
         {
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
-            //if (status)
+            // if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
                 Angle.Reprojection(Img);
-                Angle.Get_Datapack(Data);     // 数据包获取
+                Angle.Get_Datapack(Data); // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
                 */
                 Angle.Tvec_Print();
-                cout << "Dist是: " <<Data.dist << endl;
+                cout << "Dist是: " << Data.dist << endl;
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
             }
-           // else
-               //cout << "No Matching Armor !" << '\n';
+            // else
+            // cout << "No Matching Armor !" << '\n';
         }
         Plot_Box(Res, Img); // 画出检测框
-     //   TimeCount.End();
+        TimeCount.End();
         imshow("Show", Img);
         waitKey(10);
     }

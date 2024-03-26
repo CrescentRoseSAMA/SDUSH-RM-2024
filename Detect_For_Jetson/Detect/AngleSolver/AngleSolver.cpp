@@ -197,23 +197,23 @@ ArmorType AngleSolver::Get_Armor_Type(const Point2f pos[4])
     return fabs(Ratio - 3.9655) > fabs(Ratio - 2.3150) ? Small : Big;
 }
 
-void AngleSolver::Reprojection(Mat& img)    //重投影测试
+void AngleSolver::Reprojection(Mat &img) // 重投影测试
 {
     Mat R;
-    Rodrigues(Rvec,R);  // 罗德里格斯公式旋转向量转旋转矩阵
-    vector<Point2d> Projection; //重投影点存储
-    for(auto& x : Point_3D) //将世界坐标系点通过PNP算出的旋转矩阵和平移向量以及相机内参转为像素坐标系下的点
-    {        
-        Mat res = (Mat_<double>(3,1)<<x.x,x.y,x.z); // 世界坐标系矩阵（3*1）
-        Mat ans = R*res + Tvec; // 世界坐标转相机坐标下
-        ans/=ans.at<double>(2,0);   // 转换到归一化坐标系下，但为矫正畸变
-        Mat Puv = Camera_Matrix*ans;    // 归一化坐标系转换到像素坐标系下
-        Projection.push_back(Point2d(Puv.at<double>(0,0),Puv.at<double>(1,0))); // 角点存储
+    Rodrigues(Rvec, R);         // 罗德里格斯公式旋转向量转旋转矩阵
+    vector<Point2d> Projection; // 重投影点存储
+    for (auto &x : Point_3D)    // 将世界坐标系点通过PNP算出的旋转矩阵和平移向量以及相机内参转为像素坐标系下的点
+    {
+        Mat res = (Mat_<double>(3, 1) << x.x, x.y, x.z);                           // 世界坐标系矩阵（3*1）
+        Mat ans = R * res + Tvec;                                                  // 世界坐标转相机坐标下
+        ans /= ans.at<double>(2, 0);                                               // 转换到归一化坐标系下，但为矫正畸变
+        Mat Puv = Camera_Matrix * ans;                                             // 归一化坐标系转换到像素坐标系下
+        Projection.push_back(Point2d(Puv.at<double>(0, 0), Puv.at<double>(1, 0))); // 角点存储
     }
-    line(img, Projection[0], Projection[2], Scalar(0,0,255), 3);
-    line(img, Projection[1], Projection[2], Scalar(0,0,255), 3);
-    line(img, Projection[1], Projection[3], Scalar(0,0,255), 3);
-    line(img, Projection[3], Projection[0], Scalar(0,0,255), 3);    // 四点划线
+    line(img, Projection[0], Projection[2], Scalar(0, 0, 255), 3);
+    line(img, Projection[1], Projection[2], Scalar(0, 0, 255), 3);
+    line(img, Projection[1], Projection[3], Scalar(0, 0, 255), 3);
+    line(img, Projection[3], Projection[0], Scalar(0, 0, 255), 3); // 四点划线
 }
 /*
     todo...
