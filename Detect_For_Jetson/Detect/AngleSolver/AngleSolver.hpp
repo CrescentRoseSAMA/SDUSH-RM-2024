@@ -62,7 +62,7 @@ const int Enemy_Color = Red;
 
 class AngleSolver
 {
-private:
+public:
     string Camera_Name;
     vector<Point3f> Point_3D;
     vector<Point2f> Point_2D;

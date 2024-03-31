@@ -32,17 +32,23 @@ int main()
     {
         Cap.read(Img);            // 读入当前帧图像
         auto Res = Detector(Img); // 装甲板检测
+
         if (!Res.empty())
         {
+
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
             if (status)
             {
+
                 Angle.Angle_Solve(Armor.pts); // 角度解算
-                Angle.Get_Datapack(Data);     // 数据包获取
+
+                //   Angle.Reprojection(Img);
+                Angle.Get_Datapack(Data); // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
                 */
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
+                //  cout << Data.Angles[0] << " " << Angle.Yaw << endl;
             }
         }
         else
@@ -61,20 +67,21 @@ int main()
     bbox_t Armor;
     string Camera_Name;
     Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
-    AngleSolver Angle(Camera_Name);      // 初始化角度解算类
-    Seri.uart_setup();                   // 初始化串口
-    Cap.Open_Camera();                   // 打开相机，使之可接收图片
-    Cap.Set_Ae_Mode(false);              // 关闭自动曝光
-    Cap.Set_Ex_Time(8);                  // 设置曝光时间为8ms
+    cout << Camera_Name << endl;
+    AngleSolver Angle(Camera_Name); // 初始化角度解算类
+    Seri.uart_setup();              // 初始化串口
+    Cap.Open_Camera();              // 打开相机，使之可接收图片
+    Cap.Set_Ae_Mode(false);         // 关闭自动曝光
+    Cap.Set_Ex_Time(5);             // 设置曝光时间为8ms
     while (true)
     {
-        TimeCount.Start();
-        Cap.read(Img); // 读入当前帧图像
+        //  TimeCount.Start();
+        Cap.read(Img);            // 读入当前帧图像
         auto Res = Detector(Img); // 装甲板检测
         if (!Res.empty())
         {
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
-            // if (status)
+            if (status)
             {
                 Angle.Angle_Solve(Armor.pts); // 角度解算
                 Angle.Reprojection(Img);
@@ -83,14 +90,15 @@ int main()
                 串口数据发送 x,y,z,distance,pitch,yaw.
                 */
                 Angle.Tvec_Print();
-                cout << "Dist是: " << Data.dist << endl;
+                // cout << "Dist是: " << Data.dist << endl;
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
+                cout << Angle.Pitch << " " << Angle.Yaw << endl;
             }
             // else
             // cout << "No Matching Armor !" << '\n';
         }
         Plot_Box(Res, Img); // 画出检测框
-        TimeCount.End();
+                            //  TimeCount.End();
         imshow("Show", Img);
         waitKey(10);
     }

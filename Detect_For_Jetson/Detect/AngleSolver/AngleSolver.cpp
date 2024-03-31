@@ -164,7 +164,7 @@ void AngleSolver::Angle_Solve(const Point2f Point[4])
 
     Get_Angle_And_Distance(); // 相机坐标系下的角度解算以及距离计算
 
-    Angle_Compensate(); // 偏移量补偿，将相机坐标系下的yaw，pitch角转化为枪口坐标系下的yaw，pitch以及Distance
+    // Angle_Compensate(); // 偏移量补偿，将相机坐标系下的yaw，pitch角转化为枪口坐标系下的yaw，pitch以及Distance
 }
 
 void AngleSolver::Get_Datapack(DataPack &Data)
