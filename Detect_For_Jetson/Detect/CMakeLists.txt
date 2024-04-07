@@ -26,3 +26,7 @@ target_link_libraries(Detect Module)
 include_directories(Utils)
 add_subdirectory(Utils)
 target_link_libraries(Detect Utils)
+
+include_directories(Kalman)
+add_subdirectory(Kalman)
+target_link_libraries(Detect Kalman)

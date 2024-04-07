@@ -2,6 +2,7 @@
 #include "AngleSolver/AngleSolver.hpp"
 #include "MvCamera/MvCamera.h"
 #include "Serial/Serial.h"
+#include "Kalman/Kalman.h"
 #include <opencv4/opencv2/opencv.hpp>
 #include <string>
 #include <iostream>
