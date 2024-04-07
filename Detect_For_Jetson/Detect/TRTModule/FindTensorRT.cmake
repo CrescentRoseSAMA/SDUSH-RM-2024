@@ -1,5 +1,5 @@
 find_package(CUDA REQUIRED)
-set(TensorRT_ROOT /usr/src/tensorrt)
+set(TensorRT_ROOT /home/ruby/Tensorrt/trt)
 # find all include directories
 find_path(TensorRT_INCLUDE_DIRS NvInfer.h
         HINTS ${TensorRT_ROOT} ${CUDA_TOOLKIT_ROOT_DIR}

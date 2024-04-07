@@ -47,7 +47,7 @@ double Get_Area(cv::Point2f pts[4])
 /*
  * 筛选最佳装甲板，无结果返回false
  */
-bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, string Camera_Name)
+bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, std::string Camera_Name)
 {
     bool flag = true;
     std::sort(res.begin(), res.end(), [](bbox_t res1, bbox_t res2)

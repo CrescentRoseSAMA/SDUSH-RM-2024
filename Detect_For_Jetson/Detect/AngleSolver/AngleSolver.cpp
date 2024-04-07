@@ -1,16 +1,16 @@
 #include "AngleSolver.hpp"
 #include <cmath>
 #include <cstring>
+#include <Eigen/Eigen>
 #define DEGUB 0
-using namespace std;
 
-AngleSolver::AngleSolver(string Name)
+AngleSolver::AngleSolver(std::string Name)
 {
     Camera_Name = Name;
     X_Pose = Y_Pose = Z_Pose = 0;
     Point_3D.clear();
     Point_2D.clear();
-    FileStorage fs(Adress_Of_CameraParam, FileStorage::READ);
+    cv::FileStorage fs(Adress_Of_CameraParam, cv::FileStorage::READ);
     fs[Camera_Name + "_Camera_Matrix"] >> Camera_Matrix;
     fs[Camera_Name + "_DistCoeffs"] >> DistCoeffs;
     // 相机的内参矩阵以及畸变矩阵的录入
@@ -65,10 +65,10 @@ void AngleSolver::Get_Point_3D(const ArmorType type)
 #endif
     }
     // 以右手笛卡尔坐标系为参照，z轴指向人前
-    Point_3D.push_back(Point3f(-N, -M, 0.0)); // 左上tl
-    Point_3D.push_back(Point3f(N, -M, 0.0));  // 右上tr
-    Point_3D.push_back(Point3f(N, M, 0.0));   // 右下br
-    Point_3D.push_back(Point3f(-N, M, 0.0));  // 左下bl
+    Point_3D.push_back(cv::Point3f(-N, -M, 0.0)); // 左上tl
+    Point_3D.push_back(cv::Point3f(N, -M, 0.0));  // 右上tr
+    Point_3D.push_back(cv::Point3f(N, M, 0.0));   // 右下br
+    Point_3D.push_back(cv::Point3f(-N, M, 0.0));  // 左下bl
 }
 
 /*注意像素坐标*/
@@ -89,7 +89,7 @@ pts[1] -> bl
 pts[2] -> br
 pts[3] -> tr
 */
-void AngleSolver::Get_Point_2D(const Point2f Point2D[4])
+void AngleSolver::Get_Point_2D(const cv::Point2f Point2D[4])
 {
 #if DEBUG
     if (Point2D.size() != 4)
@@ -99,10 +99,10 @@ void AngleSolver::Get_Point_2D(const Point2f Point2D[4])
     }
 #endif
     // 像素坐标系点的存储顺序要和世界坐标系上点的存储顺序一致，否则会出现较大的误差
-    Point_2D.push_back(Point2f(Point2D[0])); // tl
-    Point_2D.push_back(Point2f(Point2D[3])); // tr
-    Point_2D.push_back(Point2f(Point2D[2])); // br
-    Point_2D.push_back(Point2f(Point2D[1])); // bl
+    Point_2D.push_back(cv::Point2f(Point2D[0])); // tl
+    Point_2D.push_back(cv::Point2f(Point2D[3])); // tr
+    Point_2D.push_back(cv::Point2f(Point2D[2])); // br
+    Point_2D.push_back(cv::Point2f(Point2D[1])); // bl
 }
 void AngleSolver::Get_Angle_And_Distance()
 {
@@ -119,7 +119,7 @@ void AngleSolver::Get_Angle_And_Distance()
     }
 #endif
     // PnP解算，采用重投影迭代法
-    solvePnP(Point_3D, Point_2D, Camera_Matrix, DistCoeffs, Rvec, Tvec, false, SOLVEPNP_ITERATIVE);
+    cv::solvePnP(Point_3D, Point_2D, Camera_Matrix, DistCoeffs, Rvec, Tvec, false, cv::SOLVEPNP_ITERATIVE);
     X_Pose = Tvec.at<double>(0, 0);
     Y_Pose = Tvec.at<double>(0, 1);
     Z_Pose = Tvec.at<double>(0, 2);
@@ -155,7 +155,7 @@ void AngleSolver::Angle_Compensate()
     Distance = sqrt(X_Pose * X_Pose + Y_Pose * Y_Pose + Z_Pose * Z_Pose);
 }
 
-void AngleSolver::Angle_Solve(const Point2f Point[4])
+void AngleSolver::Angle_Solve(const cv::Point2f Point[4])
 {
     ArmorType Type = Get_Armor_Type(Point);
     Get_Point_3D(Type); // 世界坐标获取
@@ -180,7 +180,7 @@ void AngleSolver::Get_Datapack(DataPack &Data)
 
 void AngleSolver::Tvec_Print() const
 {
-    cout << Tvec << endl;
+    std::cout << Tvec << std::endl;
 }
 
 void AngleSolver::clear()
@@ -189,7 +189,7 @@ void AngleSolver::clear()
     Point_3D.clear();
 }
 
-ArmorType AngleSolver::Get_Armor_Type(const Point2f pos[4])
+ArmorType AngleSolver::Get_Armor_Type(const cv::Point2f pos[4])
 {
     double W = pos[3].x - pos[0].x; // tr - tl 长度
     double H = pos[1].y - pos[0].y; // bl - tl 宽度
@@ -197,23 +197,23 @@ ArmorType AngleSolver::Get_Armor_Type(const Point2f pos[4])
     return fabs(Ratio - 3.9655) > fabs(Ratio - 2.3150) ? Small : Big;
 }
 
-void AngleSolver::Reprojection(Mat &img) // 重投影测试
+void AngleSolver::Reprojection(cv::Mat &img) // 重投影测试
 {
-    Mat R;
-    Rodrigues(Rvec, R);         // 罗德里格斯公式旋转向量转旋转矩阵
-    vector<Point2d> Projection; // 重投影点存储
-    for (auto &x : Point_3D)    // 将世界坐标系点通过PNP算出的旋转矩阵和平移向量以及相机内参转为像素坐标系下的点
+    cv::Mat R;
+    Rodrigues(Rvec, R);                  // 罗德里格斯公式旋转向量转旋转矩阵
+    std::vector<cv::Point2d> Projection; // 重投影点存储
+    for (auto &x : Point_3D)             // 将世界坐标系点通过PNP算出的旋转矩阵和平移向量以及相机内参转为像素坐标系下的点
     {
-        Mat res = (Mat_<double>(3, 1) << x.x, x.y, x.z);                           // 世界坐标系矩阵（3*1）
-        Mat ans = R * res + Tvec;                                                  // 世界坐标转相机坐标下
-        ans /= ans.at<double>(2, 0);                                               // 转换到归一化坐标系下，但为矫正畸变
-        Mat Puv = Camera_Matrix * ans;                                             // 归一化坐标系转换到像素坐标系下
-        Projection.push_back(Point2d(Puv.at<double>(0, 0), Puv.at<double>(1, 0))); // 角点存储
+        cv::Mat res = (cv::Mat_<double>(3, 1) << x.x, x.y, x.z);                       // 世界坐标系矩阵（3*1）
+        cv::Mat ans = R * res + Tvec;                                                  // 世界坐标转相机坐标下
+        ans /= ans.at<double>(2, 0);                                                   // 转换到归一化坐标系下，但为矫正畸变
+        cv::Mat Puv = Camera_Matrix * ans;                                             // 归一化坐标系转换到像素坐标系下
+        Projection.push_back(cv::Point2d(Puv.at<double>(0, 0), Puv.at<double>(1, 0))); // 角点存储
     }
-    line(img, Projection[0], Projection[2], Scalar(0, 0, 255), 3);
-    line(img, Projection[1], Projection[2], Scalar(0, 0, 255), 3);
-    line(img, Projection[1], Projection[3], Scalar(0, 0, 255), 3);
-    line(img, Projection[3], Projection[0], Scalar(0, 0, 255), 3); // 四点划线
+    cv::line(img, Projection[0], Projection[2], cv::Scalar(0, 0, 255), 3);
+    cv::line(img, Projection[1], Projection[2], cv::Scalar(0, 0, 255), 3);
+    cv::line(img, Projection[1], Projection[3], cv::Scalar(0, 0, 255), 3);
+    cv::line(img, Projection[3], Projection[0], cv::Scalar(0, 0, 255), 3); // 四点划线
 }
 /*
     todo...

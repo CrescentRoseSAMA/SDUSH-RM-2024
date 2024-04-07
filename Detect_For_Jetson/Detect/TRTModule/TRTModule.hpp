@@ -6,7 +6,7 @@
 #define _ONNXTRTMODULE_HPP_
 
 #include <opencv2/core.hpp>
-#include "NvInfer.h"
+#include "/home/ruby/Tensorrt/trt/include/NvInfer.h"
 
 const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
 struct alignas(4) bbox_t
