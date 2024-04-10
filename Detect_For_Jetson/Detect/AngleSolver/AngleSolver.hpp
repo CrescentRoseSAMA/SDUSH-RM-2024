@@ -94,6 +94,8 @@ public:
 
     void Angle_Compensate(); // 偏移量补偿
 
+    void Gravity_Compensate(); // 重力补偿
+
     void Tvec_Print() const; // 打印平移向量用于Debug
 
     void Get_Datapack(DataPack &Data); // 获取数据包,(x,y,z,pitch,yaw,distance)

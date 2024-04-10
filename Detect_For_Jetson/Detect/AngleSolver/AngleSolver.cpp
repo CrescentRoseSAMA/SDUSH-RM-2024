@@ -155,6 +155,35 @@ void AngleSolver::Angle_Compensate()
     Distance = sqrt(X_Pose * X_Pose + Y_Pose * Y_Pose + Z_Pose * Z_Pose);
 }
 
+void AngleSolver::Gravity_Compensate()
+{
+    // 考虑重力影响下弹丸偏移的补偿
+    double v = 0; // Bullet_Speed;
+    double d = Distance;
+    double Target_y = Y_Pose;
+    double Temp_y = Target_y;
+    double Acc = 30;                         // 误差估计
+    double Temp_Pitch = Pitch * CV_PI / 180; // 角度转化弧度
+    // 通过不断迭代来补偿抬高枪口，直到误差小于规定尺度结束补偿
+    while (Acc >= 0.01)
+    {
+        // 飞行时间
+        double t = v * cos(Temp_Pitch) / (d * cos(Temp_Pitch));
+        // 抛物线模型与匀速直线模型落点的y轴差距
+        double Height = v * sin(Temp_Pitch) * t - 0.5 * 9.8 * t * t;
+        double Delta_Height = Target_y - Height;
+        // 差距补偿
+        Temp_y += Delta_Height;
+        // 重新计算俯仰角度,枪管抬高
+        Temp_Pitch = -atan(Temp_y / sqrt(X_Pose * X_Pose + Z_Pose * Z_Pose));
+        // 更新误差估计
+        Acc = Delta_Height;
+    }
+    // 更新计算俯仰角的y轴坐标以及pitch角
+    Z_Pose = Temp_y;
+    Pitch = Temp_Pitch * 180 / CV_PI;
+}
+
 void AngleSolver::Angle_Solve(const cv::Point2f Point[4])
 {
     ArmorType Type = Get_Armor_Type(Point);

@@ -1,12 +1,12 @@
 %YAML:1.0
 ---
-Infantry_big_Camera_Matrix: !!opencv-matrix
+Auto_Name_Camera_Matrix: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
    data: [ 2.0443544487088000e+03, 0., 3.5248855087252701e+02, 0.,
        2.0332084105066899e+03, -1.9438813831188501e+01, 0., 0., 1. ]
-Infantry_big_DistCoeffs: !!opencv-matrix
+Auto_Name_DistCoeffs: !!opencv-matrix
    rows: 5
    cols: 1
    dt: d

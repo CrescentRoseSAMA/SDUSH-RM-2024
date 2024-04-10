@@ -15,6 +15,11 @@ void Timer::End()
     std::cout << "测速段" << Timer_ID << "结束，用时：" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << '\n';
 }
 
+long long Timer::Get_Duration()
+{
+    end = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
 /*
  * 对检测完毕的图像画出检测出来的装甲板结果
  */

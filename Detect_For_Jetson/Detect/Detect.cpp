@@ -9,7 +9,7 @@
 #include "Utils/Utils.h"
 const std::string onnx_file4 = "../model-cache/model-opt-4.onnx";
 const std::string onnx_file3 = "../model-cache/model-opt-3.onnx";
-
+using namespace cv;
 int main()
 {
 #if 1
@@ -19,7 +19,7 @@ int main()
     DataPack Data;
     cv::Mat Img;
     bbox_t Armor;
-    std::string Camera_Name;
+    std::string Camera_Name = "Auto_Name";
     Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
     std::cout << "相机名称为 :" << Camera_Name << std::endl;
     AngleSolver Angle(Camera_Name); // 初始化角度解算类
@@ -38,22 +38,23 @@ int main()
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
             if (status)
             {
-
                 Angle.Angle_Solve(Armor.pts); // 角度解算
-
-                //   Angle.Reprojection(Img);
+                // Angle.Reprojection(Img);
                 Angle.Get_Datapack(Data); // 数据包获取
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
                 */
                 Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
                 //  cout << Data.Angles[0] << " " << Angle.Yaw << endl;
+                Plot_Box(Res, Img);
             }
         }
         else
         {
             Seri.send(0, 0, 0, 0, 0, 0, 0); // 最后一个参数为1表示有装甲板数据发送，为0表示无装甲板数据发送
         }
+        cv::imshow("Show", Img);
+        cv::waitKey(20);
     }
 #endif
 #if 0

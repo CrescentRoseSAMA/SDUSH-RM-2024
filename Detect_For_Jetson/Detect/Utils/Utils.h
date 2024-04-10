@@ -23,6 +23,7 @@ public:
     ~Timer();
     void Start(); // 放置起始时间点，应用于测速段之前
     void End();   // 放置结束时间点并打印起始到结束的时间，应用于测速段之后,每次调用Point_Count加1
+    long long Get_Duration();
 };
 
 /*
