@@ -30,3 +30,7 @@ target_link_libraries(Detect Utils)
 include_directories(Kalman)
 add_subdirectory(Kalman)
 target_link_libraries(Detect Kalman)
+
+include_directories(Total_Est)
+add_subdirectory(Total_Est)
+target_link_libraries(Detect Total_Est)

@@ -146,7 +146,7 @@ void TRTModule::build_engine_from_onnx(const std::string &onnx_file)
     TRT_ASSERT(parser != nullptr);
     parser->parseFromFile(onnx_file.c_str(), static_cast<int>(ILogger::Severity::kINFO));
     auto yolov5_output = network->getOutput(0);
-    auto slice_layer = network->addSlice(*yolov5_output, Dims3{0, 0, 8}, Dims3{1, 15120, 1}, Dims3{1, 1, 1});
+    auto slice_layer = network->addSlice(*yolov5_output, Dims3{0, 0, 0}, Dims3{1, 15120, 1}, Dims3{1, 1, 1});
     auto yolov5_conf = slice_layer->getOutput(0);
     auto shuffle_layer = network->addShuffle(*yolov5_conf);
     shuffle_layer->setReshapeDimensions(Dims2{1, 15120});
@@ -210,14 +210,13 @@ std::vector<bbox_t> TRTModule::operator()(const cv::Mat &src) const
 {
     // pre-process [bgr2rgb & resize]
     cv::Mat x;
-    float fx = (float)src.cols / 640.f, fy = (float)src.rows / 384.f;
+    float fx = (float)src.cols / 640.f, fy = (float)src.rows / 640.f;
     cv::cvtColor(src, x, cv::COLOR_BGR2RGB);
-    if (src.cols != 640 || src.rows != 384)
+    if (src.cols != 640 || src.rows != 640)
     {
-        cv::resize(x, x, {640, 384});
+        cv::resize(x, x, {640, 640});
     }
     x.convertTo(x, CV_32F);
-
     // run model
     cudaMemcpyAsync(device_buffer[input_idx], x.data, input_sz * sizeof(float), cudaMemcpyHostToDevice, stream);
     context->enqueueV2(device_buffer, stream, nullptr); // 这里将enqueue改为enqueueV2，不再爆Warning。直接删除BachSize参数即可

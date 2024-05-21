@@ -3,16 +3,19 @@
 #include "MvCamera/MvCamera.h"
 #include "Serial/Serial.h"
 #include "Kalman/Kalman.h"
+#include "Total_Est/Total_Est.h"
 #include <opencv4/opencv2/opencv.hpp>
 #include <string>
 #include <iostream>
 #include "Utils/Utils.h"
 const std::string onnx_file4 = "../model-cache/model-opt-4.onnx";
 const std::string onnx_file3 = "../model-cache/model-opt-3.onnx";
+const std::string temp_file = "../model-cache/yolov5s.onnx";
 using namespace cv;
+using namespace std;
 int main()
 {
-#if 1
+#if 0
     TRTModule Detector(onnx_file4);
     Mv_Camera Cap;
     Serial Seri;
@@ -59,25 +62,30 @@ int main()
 #endif
 #if 0
     Timer TimeCount;
-    TRTModule Detector(onnx_file4);
-    Mv_Camera Cap;
+    TRTModule Detector(temp_file);
+    // Mv_Camera Cap;
     Serial Seri;
     DataPack Data;
     Mat Img;
     bbox_t Armor;
-    string Camera_Name;
-    Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
-    cout << Camera_Name << endl;
+    std::string Camera_Name = "Auto_Name";
+    VideoCapture Cap(0);
+    // Camera_Name = Cap.Get_Camera_Name(); // 获取相机名称，用于后续判断
+    std::cout << Camera_Name << std::endl;
     AngleSolver Angle(Camera_Name); // 初始化角度解算类
     Seri.uart_setup();              // 初始化串口
-    Cap.Open_Camera();              // 打开相机，使之可接收图片
-    Cap.Set_Ae_Mode(false);         // 关闭自动曝光
-    Cap.Set_Ex_Time(5);             // 设置曝光时间为8ms
+    // Cap.Open_Camera();              // 打开相机，使之可接收图片
+    //   Cap.Set_Ae_Mode(false);         // 关闭自动曝光
+    //    Cap.Set_Ex_Time(5);             // 设置曝光时间为8ms
     while (true)
     {
-        //  TimeCount.Start();
-        Cap.read(Img);            // 读入当前帧图像
+
+        Cap.read(Img); // 读入当前帧图像
+        TimeCount.Start();
+        //  std::cout << 1;
         auto Res = Detector(Img); // 装甲板检测
+                                  //  std::cout << 2;
+        TimeCount.End();
         if (!Res.empty())
         {
             bool status = Find_Best_Armor(Res, Armor, Camera_Name); // 对装甲板像素面积进行从大到小排序，同时区分敌方与友方装甲板，从敌方中选取面积最大的一个进行打击
@@ -89,19 +97,27 @@ int main()
                 /*
                 串口数据发送 x,y,z,distance,pitch,yaw.
                 */
-                Angle.Tvec_Print();
+                //   Angle.Tvec_Print();
                 // cout << "Dist是: " << Data.dist << endl;
-                Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
-                cout << Angle.Pitch << " " << Angle.Yaw << endl;
+                //   Seri.send(Data.Tvec[0], Data.Tvec[1], Data.Tvec[2], Data.dist, Data.Angles[0], Data.Angles[1], 1);
+                //  std::cout << Angle.Pitch << " " << Angle.Yaw << std::endl;
             }
-            // else
-            // cout << "No Matching Armor !" << '\n';
+            else
+                std::cout << "No Matching Armor !" << '\n';
         }
         Plot_Box(Res, Img); // 画出检测框
-                            //  TimeCount.End();
+
         imshow("Show", Img);
-        waitKey(10);
+        waitKey(1);
     }
 #endif
+    Timer T;
+    T.Start();
+    Mat a = (Mat_<double>(1, 3) << 2, 2, 2);
+    Mat b = (Mat_<double>(1, 3) << 1, 5, 6);
+    Total_Est Est;
+    cout << Est.Get_Angle_Of_Vectors3d(a, b) * 180 / CV_PI << endl;
+    cout << Est.Get_Dist_Between_Vectors3d(a, b) << endl;
+    T.End();
     return 0;
 }

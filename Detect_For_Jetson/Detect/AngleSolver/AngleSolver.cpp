@@ -121,8 +121,8 @@ void AngleSolver::Get_Angle_And_Distance()
     // PnP解算，采用重投影迭代法
     cv::solvePnP(Point_3D, Point_2D, Camera_Matrix, DistCoeffs, Rvec, Tvec, false, cv::SOLVEPNP_ITERATIVE);
     X_Pose = Tvec.at<double>(0, 0);
-    Y_Pose = Tvec.at<double>(0, 1);
-    Z_Pose = Tvec.at<double>(0, 2);
+    Y_Pose = Tvec.at<double>(1, 0);
+    Z_Pose = Tvec.at<double>(2, 0);
     // Pitch，Yaw角计算
     Pitch = -atan(Y_Pose / sqrt(X_Pose * X_Pose + Z_Pose * Z_Pose)) * 180 / CV_PI; // y/sqrt(z*z+x*x)
     Yaw = atan(X_Pose / Z_Pose) * 180 / CV_PI;
@@ -199,8 +199,8 @@ void AngleSolver::Angle_Solve(const cv::Point2f Point[4])
 void AngleSolver::Get_Datapack(DataPack &Data)
 {
     Data.Tvec[0] = Tvec.at<double>(0, 0); // x
-    Data.Tvec[1] = Tvec.at<double>(0, 1); // y
-    Data.Tvec[2] = Tvec.at<double>(0, 2); // z
+    Data.Tvec[1] = Tvec.at<double>(1, 0); // y
+    Data.Tvec[2] = Tvec.at<double>(2, 0); // z
     Data.Angles[0] = Pitch;
     Data.Angles[1] = Yaw;
     Data.dist = Distance;

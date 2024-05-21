@@ -24,7 +24,7 @@ struct alignas(4) bbox_t
  */
 class TRTModule
 {
-    static constexpr int TOPK_NUM = 128;
+    static constexpr int TOPK_NUM = 100;
     static constexpr float KEEP_THRES = 0.1f;
 
 public:
