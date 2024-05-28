@@ -210,11 +210,11 @@ std::vector<bbox_t> TRTModule::operator()(const cv::Mat &src) const
 {
     // pre-process [bgr2rgb & resize]
     cv::Mat x;
-    float fx = (float)src.cols / 640.f, fy = (float)src.rows / 640.f;
+    float fx = (float)src.cols / 640.f, fy = (float)src.rows / 384.f;
     cv::cvtColor(src, x, cv::COLOR_BGR2RGB);
-    if (src.cols != 640 || src.rows != 640)
+    if (src.cols != 640 || src.rows != 384)
     {
-        cv::resize(x, x, {640, 640});
+        cv::resize(x, x, {640, 384});
     }
     x.convertTo(x, CV_32F);
     // run model

@@ -73,5 +73,6 @@ void Mv_Camera::Set_Camera_Name(std::string name)
 
 std::string Mv_Camera::Get_Camera_Name()
 {
+    std::cout << "====" << "相机为" << Camera_Name << "====" << std::endl;
     return Camera_Name;
 }
