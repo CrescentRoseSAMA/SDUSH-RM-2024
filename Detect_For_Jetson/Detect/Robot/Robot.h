@@ -5,7 +5,7 @@
 
 class Robot
 {
-public:
+private:
     double center_r;
 
     double robot_id;
@@ -21,13 +21,14 @@ public:
 
     ~Robot(){};
 
-    void Solve(const std::vector<bbox_t> &Res);
+    std::vector<DataPack> Solve(const std::vector<bbox_t> &Res);
 
     void Center_to_Pixel(cv::Mat &img);
 
     void Release();
 
     DataPack &operator[](int idx) { return Pack[idx]; }
+
     /*
      *  一些向量基本运算求解
      */

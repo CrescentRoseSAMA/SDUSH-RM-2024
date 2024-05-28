@@ -223,6 +223,7 @@ DataPack AngleSolver::Pack()
     Package.dist = Distance;
     Rodrigues(Rvec, Package.R);
     Package.tvec = Tvec.clone();
+    Package.type = Type;
     return Package;
 }
 

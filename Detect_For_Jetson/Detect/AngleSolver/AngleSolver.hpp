@@ -3,25 +3,19 @@
 #include <algorithm>
 #include <opencv4/opencv2/opencv.hpp>
 #include <vector>
+#include <cstdio>
 /**************************************
 Pitch -- Y
 Yaw   -- X
 **************************************/
 
 /*
- *装甲板类型定义，装甲板尺寸类型定义，角度解算数据包定义
+ *  装甲板尺寸类型定义
  */
 typedef std::pair<double, double> ArmorSize;
-typedef struct Pack
-{
-    double P_c[3];    // 相机坐标系下坐标 x,y,z
-    double Angles[2]; // 角度 pitch/yaw
-    double dist;      // 距离
-    cv::Mat R;        // 旋转矩阵
-    cv::Mat tvec;     // 平移向量
-} DataPack;
+
 /*
- *大小装甲板世界坐标基准，first = 长 ， second = 宽，对应像素坐标下框起来的部分,单位为mm
+ *  大小装甲板世界坐标基准，first = 长 ， second = 宽，对应像素坐标下框起来的部分,单位为mm
  */
 const ArmorSize Big_Armor_Size(230.0, 58.0);
 const ArmorSize Small_Armor_Size(132.0, 54.0);
@@ -35,6 +29,9 @@ enum ArmorType
     Small
 };
 
+/*
+ * 决定大小装甲板的结构定义
+ */
 typedef struct Type_Decide
 {
     bool Decided;
@@ -66,7 +63,6 @@ typedef struct Type_Decide
 /*
  *矫正参数
  */
-
 const std::unordered_map<std::string, double> Y_Distance_Between_Gun_And_Camera{
     {"Infantry_big", 0},
     {"Infantry_small", 0},
@@ -83,7 +79,6 @@ const std::unordered_map<std::string, double> Z_Distance_Between_Gun_And_Camera{
 /*
  *相机内参矩阵以及畸变矩阵存储位置
  */
-
 const std::string Adress_Of_CameraParam = "../Assets/CameraParam.yaml";
 
 /*
@@ -95,9 +90,23 @@ enum Color
     Red,
     Gray
 }; // 定义参考上交TRTModule.hpp中的color.id设置
-const int Friend_Color = Blue;
-const int Enemy_Color = Red;
+const Color Friend_Color = Blue;
+const Color Enemy_Color = Red;
 
+/*
+ * 角度解算数据包定义
+ */
+typedef struct Pack
+{
+    double P_c[3];    // 相机坐标系下坐标 x,y,z
+    double Angles[2]; // 角度 pitch/yaw
+    double dist;      // 距离
+    cv::Mat R;        // 旋转矩阵
+    cv::Mat tvec;     // 平移向量
+    Color color;      // 敌方装甲板颜色
+    int id;           // 该装甲板的id
+    ArmorType type;   // 装甲板类型(大小)
+} DataPack;
 class AngleSolver
 {
 public:

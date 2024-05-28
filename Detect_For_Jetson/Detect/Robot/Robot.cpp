@@ -14,11 +14,13 @@ Robot::Robot(const string &camera_name, int idx)
  * 解算装甲板返回解算后的相机坐标系值，同时在允许情况下估计装甲板中心到中心的距离r
  */
 
-void Robot::Solve(const vector<bbox_t> &Res)
+vector<DataPack> Robot::Solve(const vector<bbox_t> &Res)
 {
     for (auto Armor : Res)
     {
         auto data = solver.Solve(Armor.pts);
+        data.color = Color(Armor.color_id);
+        data.id = Armor.tag_id;
         Pack.push_back(data);
     }
     if (Pack.size() >= 2)
@@ -36,7 +38,8 @@ void Robot::Solve(const vector<bbox_t> &Res)
         center_r = Len / 2 * sin(angle / 2);
     }
     else
-        cout << "=====装甲板不满两个，无法估计中心=====\n";
+        cout << "ID: " << Res[0].tag_id << "=====装甲板不满两个，无法估计中心=====\n";
+    return Pack;
 }
 
 /*

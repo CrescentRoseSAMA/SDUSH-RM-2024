@@ -7,7 +7,7 @@
 #include <opencv4/opencv2/opencv.hpp>
 #include <string>
 #include <iostream>
-#include "Utils/Utils.h"
+#include "Utils/Utils.hpp"
 const std::string onnx_file4 = "../model-cache/model-opt-4.onnx";
 const std::string onnx_file3 = "../model-cache/model-opt-3.onnx";
 const std::string temp_file = "../model-cache/yolov5s.onnx";
@@ -18,7 +18,7 @@ using namespace std;
  * Mat类的size成员返回矩阵的（宽，高），即返回一个以像素坐标为基准的size类。
  * 其中 宽(Width) = cols（列数），高(height) = rows（行数）
  */
-vector<bbox_t> k;
+
 int main()
 {
 #if 1
@@ -34,30 +34,31 @@ int main()
     Mat img;
     while (true)
     {
-        vector<vector<bbox_t>> Armor(10);
-        bool Idx[10]{false};
+        Data_Classifier Classifier;
         Cap.read(img);
         auto Res = Detector(img);
         if (!Res.empty())
         {
             cout << "Aim's Num : " << Res.size() << endl;
             cout << "Process Start" << endl;
-            int cnt = 0;
-            for (auto &x : Res)
+            Classifier.Clsassify(Res);
+            vector<DataPack> Pack;
+            for (auto &x : Classifier)
             {
-                Armor[x.tag_id].push_back(x);
-                Idx[x.tag_id] = true;
+                auto p = Bot[x[0].tag_id].Solve(x);
+                Pack.insert(Pack.end(), p.begin(), p.end()); // 合并;
+                Bot[x[0].tag_id].Release();
             }
-            for (int i = 0; i < 10; i++)
-            {
-                if (Idx[i])
-                {
-                    Bot[i].Solve(Armor[i]);
-                    Armor[i].clear();
-                    Bot[i].Release();
-                }
-            }
+
+            bool flag = true;
+            auto Armor = Find_Best_Armor(Pack, name, flag);
+            Show(Armor);
+            if (flag)
+                Seri.send(Armor, true);
+            cout << "Process End" << endl;
         }
+        else
+            Seri.send(0, 0, 0, 0, 0, 0, false);
         Plot_Box(Res, img);
         imshow("show", img);
         waitKey(10);

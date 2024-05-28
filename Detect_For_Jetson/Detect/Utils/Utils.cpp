@@ -1,4 +1,6 @@
-#include "Utils.h"
+#include "Utils.hpp"
+using namespace std;
+using namespace cv;
 Timer::~Timer()
 {
 }
@@ -20,10 +22,11 @@ long long Timer::Get_Duration()
     end = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
+
 /*
  * 对检测完毕的图像画出检测出来的装甲板结果
  */
-void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img)
+void Plot_Box(vector<bbox_t> &res, Mat &img)
 {
     for (auto &obj : res)
     {
@@ -38,7 +41,7 @@ void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img)
 /*
  * 海伦公式计算装甲板面积
  */
-double Get_Area(cv::Point2f pts[4])
+double Get_Area(Point2f pts[4])
 {
     double a = sqrt(pow(pts[0].x - pts[1].x, 2) + pow(pts[0].y - pts[0].y, 2));
     double b = sqrt(pow(pts[1].x - pts[2].x, 2) + pow(pts[1].y - pts[2].y, 2));
@@ -50,26 +53,62 @@ double Get_Area(cv::Point2f pts[4])
 }
 
 /*
- * 筛选最佳装甲板，无结果返回false
+ *  打印数据包用于Debug
  */
-bool Find_Best_Armor(std::vector<bbox_t> &res, bbox_t &Armor, std::string Camera_Name)
+void Show(DataPack &pack)
 {
-    bool flag = true;
-    std::sort(res.begin(), res.end(), [](bbox_t res1, bbox_t res2)
+    printf("START PRITN INFO\n\n");
+    printf("Color : %s\n", (pack.color == Blue ? "Blue" : "Red"));
+    printf("Position : X:%f  Y:%f  Z:%f \n", pack.P_c[0], pack.P_c[1], pack.P_c[2]);
+    printf("Angles : pitch:%f  yaw:%f", pack.Angles[0], pack.Angles[1]);
+    printf("id : %d\n", pack.id);
+    printf("Size : %s\n\n", (pack.type == Big ? "Big" : "Small"));
+    printf("PRINT END \n");
+}
+
+/*
+ * 筛选最佳装甲板，无结果返回false, 判断依据为boundingbox面积
+ */
+bbox_t &Find_Best_Armor(vector<bbox_t> &res, string &Camera_Name, bool &flag)
+{
+    flag = true;
+    std::sort(res.begin(), res.end(), [](bbox_t &res1, bbox_t &res2)
               { return Get_Area(res1.pts) > Get_Area(res2.pts); }); // 按面积进行从大到小排序
-    Armor = res[0];
-    if (Camera_Name == "Sentry") // 若是哨兵，选择击打颜色来区分友方敌方
+    if (Camera_Name == "Sentry")                                    // 若是哨兵，选择击打颜色来区分友方敌方
     {
         for (auto &x : res)
         {
             if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
             {
-                Armor = x;
-                return true;
-                break;
+                flag = true;
+                return x;
             }
         }
         flag = false;
     }
-    return flag;
+    return res[0];
+}
+
+/*
+ *  筛选最佳装甲板， 无结果返回false，判断依据为欧式距离Dist
+ */
+
+DataPack &Find_Best_Armor(vector<DataPack> &pack, const string &Camera_Name, bool &flag)
+{
+    flag = true;
+    sort(pack.begin(), pack.end(), [](DataPack &pack1, DataPack &pack2)
+         { return pack1.dist > pack2.dist; });
+    if (Camera_Name == "Sentry")
+    {
+        for (auto &x : pack)
+        {
+            if (x.color == Enemy_Color)
+            {
+                flag = true;
+                return x;
+            }
+        }
+        flag = false;
+    }
+    return pack[0];
 }

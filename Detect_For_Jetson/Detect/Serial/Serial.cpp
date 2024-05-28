@@ -69,7 +69,64 @@ int Serial::uart_setup()
 
     return 0;
 }
+int Serial::send(DataPack &pack, bool test)
+{
+    double x = pack.P_c[0];
+    double y = pack.P_c[1];
+    double z = pack.P_c[2];
+    double distance = pack.dist;
+    double pitch = pack.Angles[0];
+    double yaw = pack.Angles[1];
+    int flag = 0;
+    unsigned char input[16] = {0}; // 每个数据包发送13帧，第0帧为起始帧，第1-10帧数据帧，第11帧为校验帧，第12帧为结束帧
+    /* 起始帧设为‘s’ */
+    input[0] = 's';
+    input[1] = 't';
+    /* 数据帧，进行数据转换与装载 */
+    input[2] = transformData(x);
+    if (x < 0)
+        input[8] = 1;
+    input[3] = transformData(y);
+    if (y < 0)
+        input[9] = 1;
+    input[4] = transformData(z);
+    input[5] = transformData(distance);
 
+    if (pitch < 0) // 设置正负标志（第五第六帧为角度，有正负）
+    {
+        input[6] = (unsigned char)(-pitch);
+        input[10] = 1;
+    }
+    else
+    {
+        input[6] = (unsigned char)(pitch);
+    }
+    if (yaw < 0)
+    {
+        input[7] = (unsigned char)(-yaw);
+        input[11] = 1;
+    }
+    else
+    {
+        input[7] = (unsigned char)(yaw);
+    }
+    input[12] = test;
+    /* 校验帧对八帧数据进行校验 */
+    for (int i = 2; i < 13; i++)
+    {
+        flag += input[i];
+    }
+
+    input[13] = (unsigned char)(flag / 10);
+
+    /* 结束帧设为‘e’ */
+    input[14] = 'e';
+    input[15] = 'n';
+    /* 发送数据 */
+    if (write(fd, input, sizeof(input)) == -1)
+        return 0;
+    return -1;
+}
 int Serial::send(double x, double y, double z, double distance, double pitch, double yaw, bool test)
 {
     int flag = 0;
