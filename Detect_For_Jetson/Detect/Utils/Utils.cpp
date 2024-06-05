@@ -36,6 +36,7 @@ void Plot_Box(vector<bbox_t> &res, Mat &img)
         cv::line(img, obj.pts[3], obj.pts[2], colors[2], 2);
         cv::putText(img, std::to_string(obj.tag_id), obj.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[obj.color_id]);
     }
+    resize(img, img, {1280, 960});
 }
 
 /*
@@ -55,15 +56,28 @@ double Get_Area(Point2f pts[4])
 /*
  *  打印数据包用于Debug
  */
-void Show(DataPack &pack)
+void Show_Data(DataPack &pack, Mat &des, Scalar fontcolor, int fontsize, int thickness)
 {
-    printf("START PRITN INFO\n\n");
-    printf("Color : %s\n", (pack.color == Blue ? "Blue" : "Red"));
-    printf("Position : X:%f  Y:%f  Z:%f \n", pack.P_c[0], pack.P_c[1], pack.P_c[2]);
-    printf("Angles : pitch:%f  yaw:%f", pack.Angles[0], pack.Angles[1]);
-    printf("id : %d\n", pack.id);
-    printf("Size : %s\n\n", (pack.type == Big ? "Big" : "Small"));
-    printf("PRINT END \n");
+    string idx = to_string(pack.id);
+    string pitch = to_string(int(pack.Angles[0] * 1e3) / 1e3); // 保留三位小数(直接截断)
+    pitch.erase(pitch.end() - 3, pitch.end());
+    string yaw = to_string(int(pack.Angles[1] * 1e3) / 1e3);
+    yaw.erase(yaw.end() - 3, yaw.end());
+    string dist = to_string(int(pack.dist * 1e3) / 1e3);
+    dist.erase(dist.end() - 3, dist.end());
+    string x = to_string(int(pack.P_c[0] * 1e3) / 1e3);
+    x.erase(x.end() - 3, x.end());
+    string y = to_string(int(pack.P_c[1] * 1e3) / 1e3);
+    y.erase(y.end() - 3, y.end());
+    string z = to_string(int(pack.P_c[2] * 1e3) / 1e3);
+    z.erase(z.end() - 3, z.end());
+    string color = pack.color == Blue ? "Blue" : "Red";
+    string type_ = pack.type == Big ? "Big" : "Small";
+    putText(des, "id:" + idx, {5, 15}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
+    putText(des, "pitch:" + pitch + " " + "yaw:" + yaw + " " + "dist:" + dist, {5, 30}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
+    putText(des, "x:" + x + " " + "y:" + y + " " + "z:" + z, {5, 45}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
+    putText(des, "color:" + color, {45, 15}, FONT_HERSHEY_PLAIN, fontsize, colors[pack.color], thickness);
+    putText(des, "type:" + type_, {135, 15}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
 }
 
 /*

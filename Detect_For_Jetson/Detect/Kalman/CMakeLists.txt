@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 
+set(CMAKE_BUILD_TYPE "Release")
+
 project(Kalman)
 
 find_package(Eigen3 REQUIRED)

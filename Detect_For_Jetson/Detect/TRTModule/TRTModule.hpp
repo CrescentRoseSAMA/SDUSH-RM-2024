@@ -24,8 +24,8 @@ struct alignas(4) bbox_t
  */
 class TRTModule
 {
-    static constexpr int TOPK_NUM = 100;
-    static constexpr float KEEP_THRES = 0.1f;
+    static constexpr int TOPK_NUM = 128;
+    static constexpr float KEEP_THRES = 0.5f;
 
 public:
     explicit TRTModule(const std::string &onnx_file);
@@ -51,6 +51,17 @@ private:
     nvinfer1::IExecutionContext *context;
     mutable void *device_buffer[2];
     float *output_buffer;
+    /*
+     *  对于一个buffer，由bbox_t结构定义推断，应该有
+     *  4点(8)+ 7种装甲板置信度 + 4种颜色置信度 + 1种置信度
+     *  8 + 7 + 4 + 1 = 20
+     *  可以知道一个buffer是有20个成员的
+     *  再通过TRTModule.cpp推断得出buffer的结构
+     *  0-7 四点的x,y
+     *  8 是装甲板的置信度
+     *  9-12 四种颜色的置信度(红蓝灰紫)
+     *  13-19 七种装甲板的置信度
+     */
     cudaStream_t stream;
     int input_idx, output_idx;
     size_t input_sz, output_sz;

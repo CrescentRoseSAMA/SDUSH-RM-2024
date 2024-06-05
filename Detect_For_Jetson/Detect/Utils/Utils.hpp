@@ -31,23 +31,23 @@ public:
  */
 struct Data_Classifier
 {
-    bool Roid_exist[10];
-    char Roid_mapto_Boxid[10];
+    bool id_exist[10];
+    char id_mapto_boxid[10];
     std::vector<std::vector<bbox_t>> Box;
-    Data_Classifier() : Roid_exist{false}, Roid_mapto_Boxid{0} {};
+    Data_Classifier() : id_exist{false}, id_mapto_boxid{-1} {};
     void Clsassify(std::vector<bbox_t> &box)
     {
         for (auto &x : box)
         {
-            if (!Roid_exist[x.tag_id])
+            if (!id_exist[x.tag_id])
             {
-                Roid_exist[x.tag_id] = true;
+                id_exist[x.tag_id] = true;
                 std::vector<bbox_t> tmp{x};
                 Box.push_back(tmp);
-                Roid_mapto_Boxid[x.tag_id] = Box.size() - 1;
+                id_mapto_boxid[x.tag_id] = Box.size() - 1;
             }
             else
-                Box[x.tag_id].push_back(x);
+                Box[id_mapto_boxid[x.tag_id]].push_back(x);
         }
     }
 
@@ -58,7 +58,7 @@ struct Data_Classifier
 /*
  * 常用函数接口
  */
-void Show(Pack &pack);
+void Show_Data(DataPack &pack, cv::Mat &des, cv::Scalar fontcolor = cv::Scalar(0, 128, 255), int fontsize = 1, int thickness = 1);
 double Get_Area(cv::Point2f pts[4]);                                                                // 通过海伦公式计算不规则装甲板的面积
 bbox_t &Find_Best_Armor(std::vector<bbox_t> &res, std::string &Camera_Name, bool &flag);            // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
 DataPack &Find_Best_Armor(std::vector<DataPack> &pack, const std::string &Camera_Name, bool &flag); // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
