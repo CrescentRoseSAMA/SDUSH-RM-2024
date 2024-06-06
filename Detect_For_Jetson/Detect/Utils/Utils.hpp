@@ -43,11 +43,11 @@ struct Data_Classifier
             {
                 id_exist[x.tag_id] = true;
                 std::vector<bbox_t> tmp{x};
-                Box.push_back(tmp);
+                Box.emplace_back(tmp);
                 id_mapto_boxid[x.tag_id] = Box.size() - 1;
             }
             else
-                Box[id_mapto_boxid[x.tag_id]].push_back(x);
+                Box[id_mapto_boxid[x.tag_id]].emplace_back(x);
         }
     }
 

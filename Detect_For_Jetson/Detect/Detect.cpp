@@ -11,8 +11,8 @@
 #define DEBUG true
 const std::string onnx_file4 = "../model-cache/model-opt-4.onnx";
 const std::string onnx_file3 = "../model-cache/model-opt-3.onnx";
-const std::string temp_file = "../model-cache/rm-net.onnx";
-const std::string onnx_file5 = "../model-cache/0708.onnx";
+const std::string temp_file = "../model-cache/0708.onnx";
+const std::string onnx_file5 = "../model-cache/file.onnx";
 using namespace cv;
 using namespace std;
 
@@ -100,10 +100,10 @@ int main()
 
             bool flag = true;
             auto Armor = Find_Best_Armor(Pack, name, flag);
-            Show_Data(Armor, img, Scalar(0, 0, 255), 1, 2);
+            Show_Data(Armor, img, Scalar(0, 0, 255), 1, 1);
             if (flag)
-                //  Seri.send(Armor, true);
-                cout << "Process End" << endl;
+                Seri.send(Armor, true);
+            cout << "Process End" << endl;
         }
         else
             Seri.send(0, 0, 0, 0, 0, 0, false);

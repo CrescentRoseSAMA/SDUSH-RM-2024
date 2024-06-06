@@ -189,6 +189,8 @@ void TRTModule::build_engine_from_onnx(const std::string &onnx_file)
     network->markOutput(*yolov5_output_topk);
     network->unmarkOutput(*yolov5_output);
     auto config = builder->createBuilderConfig();
+    config->setFlag(nvinfer1::BuilderFlag::kTF32); // 设置精度计算
+    /*
     if (builder->platformHasFastFp16())
     {
         std::cout << "[INFO]: platform support fp16, enable fp16" << std::endl;
@@ -198,6 +200,7 @@ void TRTModule::build_engine_from_onnx(const std::string &onnx_file)
     {
         std::cout << "[INFO]: platform do not support fp16, enable fp32" << std::endl;
     }
+    */
     size_t free, total;
     cuMemGetInfo(&free, &total);
     std::cout << "[INFO]: total gpu mem: " << (total >> 20) << "MB, free gpu mem: " << (free >> 20) << "MB" << std::endl;
@@ -252,11 +255,16 @@ std::vector<bbox_t> TRTModule::operator()(const cv::Mat &src) const
     }
     x.convertTo(x, CV_32F);
     // run model
-
     cudaMemcpyAsync(device_buffer[input_idx], x.data, input_sz * sizeof(float), cudaMemcpyHostToDevice, stream);
-    //   cudaMemcpyAsync(device_buffer[input_idx] + sizeof(channels[0].elemSize()), channels[1].data, input_sz * sizeof(float) / 3, cudaMemcpyHostToDevice, stream);
-    //  cudaMemcpyAsync(device_buffer[input_idx] + sizeof(channels[1].elemSize()), channels[2].data, input_sz * sizeof(float) / 3, cudaMemcpyHostToDevice, stream);
-    context->enqueueV2(device_buffer, stream, nullptr); // 推理，结果存储在device_buffer中
+    /*
+    cudaMemcpyAsync(device_buffer[input_idx], channels[0].data, input_sz * sizeof(float) / 3, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(device_buffer[input_idx] + channels[0].elemSize(), channels[1].data, input_sz * sizeof(float) / 3, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(device_buffer[input_idx] + channels[1].elemSize(), channels[2].data, input_sz * sizeof(float) / 3, cudaMemcpyHostToDevice, stream);
+    */
+    this->context->setOptimizationProfileAsync(0, stream);
+    this->context->setTensorAddress("input", device_buffer[input_idx]);
+    this->context->setTensorAddress("output-topk", device_buffer[output_idx]);
+    bool success = this->context->enqueueV3(stream);
     cudaMemcpyAsync(output_buffer, device_buffer[output_idx], output_sz * sizeof(float), cudaMemcpyDeviceToHost,
                     stream);
     cudaStreamSynchronize(stream);

@@ -25,7 +25,7 @@ struct alignas(4) bbox_t
 class TRTModule
 {
     static constexpr int TOPK_NUM = 128;
-    static constexpr float KEEP_THRES = 0.5f;
+    static constexpr float KEEP_THRES = 0.6f;
 
 public:
     explicit TRTModule(const std::string &onnx_file);
@@ -63,7 +63,7 @@ private:
      *  13-19 七种装甲板的置信度
      */
     cudaStream_t stream;
-    int input_idx, output_idx;
+    int input_idx = 0, output_idx = 1;
     size_t input_sz, output_sz;
 };
 #endif /* _ONNXTRTMODULE_HPP_ */
