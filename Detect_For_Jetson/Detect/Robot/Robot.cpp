@@ -11,7 +11,12 @@ Robot::Robot(const string &camera_name, int idx)
 }
 
 /*
- * 解算装甲板返回解算后的相机坐标系值，同时在允许情况下估计装甲板中心到中心的距离r
+ *  @brief: 装甲板识别与姿态估计,同时估计中心点坐标
+ *
+ *  @param: Res: 装甲板检测结果
+ *
+ *  @return: 装甲板姿态估计结果打包
+ *
  */
 
 vector<DataPack> Robot::Solve(const vector<bbox_t> &Res)
@@ -43,7 +48,12 @@ vector<DataPack> Robot::Solve(const vector<bbox_t> &Res)
 }
 
 /*
- * 手动释放资源
+ *  @brief: 手动释放装甲板数据
+ *
+ *  @param: void
+ *
+ *  @return: void
+ *
  */
 void Robot::Release()
 {
@@ -51,7 +61,11 @@ void Robot::Release()
 }
 
 /*
- *  反投影中心到图像上
+ *  @brief: 反投影中心点到图像坐标系
+ *
+ *  @param: img: 图像
+ *
+ *  @return: void
  */
 void Robot::Center_to_Pixel(Mat &img)
 {
@@ -60,7 +74,11 @@ void Robot::Center_to_Pixel(Mat &img)
 }
 
 /*
- * 求n维向量模长
+ *  @brief: 计算向量的长度
+ *
+ *  @param: Vec: 向量,用Mat表示行列向量均可
+ *
+ *  @return: 向量的模长
  */
 double Robot::Len_vec(const Mat &Vec)
 {
@@ -74,7 +92,11 @@ double Robot::Len_vec(const Mat &Vec)
 }
 
 /*
- *  求n维向量点积
+ *  @brief: 计算向量的点积
+ *
+ *  @param: Vec1,Vec2: 向量,用Mat表示,应为同一形式(行列)同一维度
+ *
+ *  @return: 向量的点积
  */
 double Robot::Dot_vec(const Mat &Vec1, const Mat &Vec2)
 {
@@ -88,7 +110,11 @@ double Robot::Dot_vec(const Mat &Vec1, const Mat &Vec2)
 }
 
 /*
- *  求两点间的欧式距离
+ *  @brief: 计算向量的欧氏距离
+ *
+ *  @param: Vec1,Vec2: 向量,用Mat表示,应为同一形式(行列)同一维度
+ *
+ *  @return: 向量的欧氏距离
  */
 double Robot::Euclid_vec(const Mat &Vec1, const Mat &Vec2)
 {
@@ -102,7 +128,11 @@ double Robot::Euclid_vec(const Mat &Vec1, const Mat &Vec2)
 }
 
 /*
- * 求两向量间夹角
+ *  @brief: 计算向量的夹角
+ *
+ *  @param: Vec1,Vec2: 向量,用Mat表示,应为同一形式(行列)同一维度
+ *
+ *  @return: 向量的夹角
  */
 double Robot::Angle_vec(const Mat &Vec1, const Mat &Vec2)
 {

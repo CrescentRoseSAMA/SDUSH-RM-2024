@@ -130,31 +130,29 @@ public:
 
     ~AngleSolver();
 
-    AngleSolver(const std::string &name); // 构造函数，传入相机名称，通过相机名称选取对应内参,无参数选取名称为Auto_Name的一组内参
+    AngleSolver(const std::string &name);
 
-    void Get_Armor_Type(const cv::Point2f pos[4]); // 根据像素坐标判断装甲板类型
+    void Get_Armor_Type(const cv::Point2f pos[4]);
 
-    std::vector<cv::Point3f> Get_P_w(); // 获取世界坐标系，参数为装甲板的类型，其中Big=1，Small=2
+    std::vector<cv::Point3f> Get_P_w();
 
-    void Get_P_uv(const cv::Point2f P_uv[4]); // 获取像素坐标系
+    void Get_P_uv(const cv::Point2f P_uv[4]);
 
-    void Pnp_Solve(); // Pnp解算获取角度以及直线距离
+    void Pnp_Solve();
 
-    DataPack Solve(const cv::Point2f Point2D[4]); // 角度解算，传入装甲板的类型以及像素坐标系下的vector数组
+    DataPack Solve(const cv::Point2f Point2D[4]);
 
-    void Offset_Compensate(); // 偏移量补偿
+    void Offset_Compensate();
+    void Gravity_Compensate();
 
-    void Gravity_Compensate(); // 重力补偿
+    DataPack Pack();
 
-    DataPack Pack(); // 打包数据并返回,(x,y,z,pitch,yaw,distance)
-
-    void Armor_Reprojection(cv::Mat &img); // 装甲板重投影测试
-
+    void Armor_Reprojection(cv::Mat &img);
     void Reprojection(cv::Mat &img, const cv::Point3f &P_w);
 
     void Reprojection(cv::Mat &img, const cv::Mat &P_w);
 
-    void Tvec_Print() const; // 打印平移向量用于Debug
+    void Tvec_Print() const;
     /*
         todo .....
         1.重力补偿以及空气阻力补偿

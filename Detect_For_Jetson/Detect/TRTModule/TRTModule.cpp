@@ -189,7 +189,7 @@ void TRTModule::build_engine_from_onnx(const std::string &onnx_file)
     network->markOutput(*yolov5_output_topk);
     network->unmarkOutput(*yolov5_output);
     auto config = builder->createBuilderConfig();
-    config->setFlag(nvinfer1::BuilderFlag::kTF32); // 设置精度计算
+    config->setFlag(nvinfer1::BuilderFlag::kFP16); // 设置精度计算
     /*
     if (builder->platformHasFastFp16())
     {

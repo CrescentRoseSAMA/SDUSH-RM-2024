@@ -5,6 +5,14 @@
 using namespace cv;
 using namespace std;
 
+/*
+ *  @brief: 构造函数，传入相机名称，初始化相机参数
+ *
+ *  @param name: 相机名称
+ *
+ *  @return: none
+ *
+ */
 AngleSolver::AngleSolver(const string &name)
 {
     Camera_Name = name;
@@ -24,7 +32,12 @@ AngleSolver::~AngleSolver()
 }
 
 /*
- * 1. 通过像素坐标下装甲板长宽比来决定大小装甲板
+ *  @brief: 通过像素坐标长宽比判断装甲板类型
+ *
+ *  @param pos: 装甲板四个顶点像素坐标
+ *
+ *  @return: none
+ *
  */
 
 void AngleSolver::Get_Armor_Type(const cv::Point2f pos[4])
@@ -43,27 +56,32 @@ void AngleSolver::Get_Armor_Type(const cv::Point2f pos[4])
 }
 
 /*
- * 2. 获取世界坐标下装甲板坐标
-
-    相机坐标与世界坐标均采用如下示意
-            ^ z轴(物体前方)
-           /
-          /
-         /
-        /——————————> x
-        |
-        |
-        |
-        V
-        y轴
-
-    世界坐标位置可以随便，但是注意要和像素坐标对应点位置一致
-    这里采用从左上角点开始的顺时针来存入
-    pts[0] -> tl
-    pts[1] -> tr
-    pts[2] -> br
-    pts[3] -> bl
-*/
+ *  @brief: 获取装甲板四个顶点的世界坐标
+ *
+ *  @param: none
+ *
+ *  @return: P_w: 装甲板四个顶点的世界坐标
+ *
+ *  @note:
+ *   相机坐标与世界坐标均采用如下示意
+ *          ^ z轴(物体前方)
+ *          /
+ *        /
+ *        /
+ *       /——————————> x
+ *       |
+ *       |
+ *       |
+ *       V
+ *       y轴
+ *
+ *   世界坐标位置可以随便，但是注意要和像素坐标对应点位置一致
+ *   这里采用从左上角点开始的顺时针来存入
+ *   pts[0] -> tl
+ *   pts[1] -> tr
+ *   pts[2] -> br
+ *   pts[3] -> bl
+ */
 
 vector<Point3f> AngleSolver::Get_P_w()
 {
@@ -89,24 +107,30 @@ vector<Point3f> AngleSolver::Get_P_w()
 }
 
 /*
- * 3. 通过外部获取装甲板像素坐标系下的坐标
-      注意像素坐标如下
-
-        原点(图像左上)|——————————> x轴
-                    |
-                    |
-                    |
-                    V
-                    y轴
-
-
-    根据TRTModule.cpp中Detect类的返回的检测框给出的顺序
-    2D点数组中的位置为
-    pts[0] -> tl
-    pts[1] -> bl
-    pts[2] -> br
-    pts[3] -> tr
-*/
+ *  @brief: 获取装甲板四个顶点的像素坐标
+ *
+ *  @param P_uv_: 识别到的装甲板四个顶点的像素坐标
+ *
+ *  @return: none
+ *
+ *  @note:
+ *     注意像素坐标如下
+ *
+ *       原点(图像左上)|——————————> x轴
+ *                   |
+ *                   |
+ *                   |
+ *                   V
+ *                   y轴
+ *
+ *
+ *   根据TRTModule.cpp中Detect类的返回的检测框给出的顺序
+ *   2D点数组中的位置为
+ *   pts[0] -> tl
+ *   pts[1] -> bl
+ *   pts[2] -> br
+ *   pts[3] -> tr
+ */
 void AngleSolver::Get_P_uv(const cv::Point2f P_uv_[4])
 {
     /*
@@ -120,7 +144,12 @@ void AngleSolver::Get_P_uv(const cv::Point2f P_uv_[4])
 }
 
 /*
- * 4. 解算角度，计算相关量
+ *  @brief: 角度解算函数, 计算装甲板四个顶点的世界坐标，并计算相机与装甲板的距离，俯仰角，偏航角
+ *
+ *  @param: none
+ *
+ *  @return: none
+ *
  */
 
 void AngleSolver::Pnp_Solve()
@@ -139,7 +168,12 @@ void AngleSolver::Pnp_Solve()
 }
 
 /*
- * 5.角度解算总函数
+ *  @brief: 角度解算中心函数, 整合各个步骤，并返回数据打包
+ *
+ *  @param P_uv_: 识别到的装甲板四个顶点的像素坐标
+ *
+ *  @return: DataPack结构体，为各个数据的打包
+ *
  */
 
 DataPack AngleSolver::Solve(const cv::Point2f P_uv_[4])
@@ -157,7 +191,12 @@ DataPack AngleSolver::Solve(const cv::Point2f P_uv_[4])
 }
 
 /*
- * 6. 偏移量补偿用于补偿相机与枪口间的平行距离并重新计算参数
+ *  @brief: 偏移补偿函数, 补偿相机与枪口的偏移,并重新计算俯仰角，偏航角，距离
+ *
+ *  @param: none
+ *
+ *  @return: none
+ *
  */
 
 void AngleSolver::Offset_Compensate()
@@ -175,8 +214,14 @@ void AngleSolver::Offset_Compensate()
 }
 
 /*
- * 7. 单考虑重力影响下的角度补偿，原理就是斜抛运动
- *     每次计算偏差后抬头，不断迭代，没测试过。
+ *  @brief: 重力补偿函数, 补偿重力的影响,并重新计算俯仰角，偏航角，距离
+ *
+ *  @param: none
+ *
+ *  @return: none
+ *
+ *  @note: 目前未启用，到时候应传入弹丸速度，原理为斜抛运动模型，估计重力影响下弹丸的偏移，未测试过
+ *
  */
 
 void AngleSolver::Gravity_Compensate()
@@ -209,7 +254,11 @@ void AngleSolver::Gravity_Compensate()
 }
 
 /*
- * 8. 数据打包返回
+ *  @brief: 数据打包函数, 打包各个数据，并返回
+ *
+ *  @param: none
+ *
+ *  @return: DataPack结构体，为各个数据的打包
  */
 
 DataPack AngleSolver::Pack()
@@ -228,7 +277,12 @@ DataPack AngleSolver::Pack()
 }
 
 /*
- * 9.装甲板重投影
+ *  @brief: 装甲板重投影到像素坐标下
+ *
+ *  @param img: 要绘制重投影的图像
+ *
+ *  @return: none
+ *
  */
 void AngleSolver::Armor_Reprojection(Mat &img)
 {
@@ -251,7 +305,14 @@ void AngleSolver::Armor_Reprojection(Mat &img)
 }
 
 /*
- * 10. 世界坐标重投影到像素坐标下
+ *  @brief: 重投影函数, 绘制重投影点
+ *
+ *  @param img: 要绘制重投影的图像
+ *  @param P_w: 要绘制的点的世界坐标
+ *
+ *  @return: none
+ *
+ *  @note:
  * 基本公式如下
  * P_c = R_c2w * P_w + tvec
  * P_uv = 1/Z * K * P_c
@@ -280,7 +341,11 @@ void AngleSolver::Reprojection(Mat &img, const Mat &P_w)
     circle(img, P_uv_, 3, Scalar(128, 0, 128), 3);
 }
 /*
- * 11. 打印平移向量
+ *  @brief: 打印平移向量函数, 打印平移向量
+ *
+ *  @param: none
+ *
+ *  @return: none
  */
 
 void AngleSolver::Tvec_Print() const
