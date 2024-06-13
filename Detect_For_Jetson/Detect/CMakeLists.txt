@@ -19,9 +19,13 @@ include_directories(MvCamera)
 add_subdirectory(MvCamera)
 target_link_libraries(Detect MvCamera)
 
-include_directories(TRTModule)
-add_subdirectory(TRTModule)
-target_link_libraries(Detect Module)
+#include_directories(TRTModule)
+#add_subdirectory(TRTModule)
+#target_link_libraries(Detect Module)
+
+include_directories(TRTFrame)
+add_subdirectory(TRTFrame)
+target_link_libraries(Detect TRTFrame)
 
 include_directories(Utils)
 add_subdirectory(Utils)
