@@ -11,6 +11,7 @@ find_package(TensorRT REQUIRED)
 find_package(OpenCV REQUIRED)
 
 find_package(FMT REQUIRED)
+include_directories(/usr/local/cuda-11.8/targets/x86_64-linux/include/device_launch_parameters.h)
 
 include_directories(${CUDA_INCLUDE_DIRS})
 

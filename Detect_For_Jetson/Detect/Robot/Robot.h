@@ -1,5 +1,5 @@
 #include "../AngleSolver/AngleSolver.hpp"
-#include "../TRTModule/TRTModule.hpp"
+#include "../TRTFrame/TRTFrame.hpp"
 #include <opencv4/opencv2/opencv.hpp>
 #include <vector>
 
@@ -12,8 +12,6 @@ private:
 
     AngleSolver solver;
 
-    std::vector<DataPack> Pack; // tmp var， need empty for every loop
-
 public:
     Robot(const std::string &camera_name, int idx);
 
@@ -21,13 +19,9 @@ public:
 
     ~Robot(){};
 
-    std::vector<DataPack> Solve(const std::vector<bbox_t> &Res);
+    std::vector<DataPack> Solve(const std::vector<BoxInfo> &Res);
 
     void Center_to_Pixel(cv::Mat &img);
-
-    void Release();
-
-    DataPack &operator[](int idx) { return Pack[idx]; }
 
     /*
      *  一些向量基本运算求解

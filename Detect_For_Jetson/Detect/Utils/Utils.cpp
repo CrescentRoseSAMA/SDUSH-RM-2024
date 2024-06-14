@@ -24,22 +24,6 @@ long long Timer::Get_Duration()
 }
 
 /*
- * 对检测完毕的图像画出检测出来的装甲板结果
- */
-void Plot_Box(vector<bbox_t> &res, Mat &img)
-{
-    for (auto &obj : res)
-    {
-        cv::line(img, obj.pts[0], obj.pts[1], colors[2], 2);
-        cv::line(img, obj.pts[0], obj.pts[2], colors[2], 2);
-        cv::line(img, obj.pts[1], obj.pts[3], colors[2], 2);
-        cv::line(img, obj.pts[3], obj.pts[2], colors[2], 2);
-        cv::putText(img, std::to_string(obj.tag_id), obj.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[obj.color_id]);
-    }
-    resize(img, img, {1280, 960});
-}
-
-/*
  * 海伦公式计算装甲板面积
  */
 double Get_Area(Point2f pts[4])
@@ -71,36 +55,16 @@ void Show_Data(DataPack &pack, Mat &des, Scalar fontcolor, int fontsize, int thi
     y.erase(y.end() - 3, y.end());
     string z = to_string(int(pack.P_c[2] * 1e3) / 1e3);
     z.erase(z.end() - 3, z.end());
-    string color = pack.color == Blue ? "Blue" : "Red";
+    string color = pack.color == Blue ? "Blue" : pack.color == Red  ? "Red"
+                                             : pack.color == Gray   ? "Gray"
+                                             : pack.color == Purple ? "Purple"
+                                                                    : "Unknown";
     string type_ = pack.type == Big ? "Big" : "Small";
     putText(des, "id:" + idx, {5, 15}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
     putText(des, "pitch:" + pitch + " " + "yaw:" + yaw + " " + "dist:" + dist, {5, 30}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
     putText(des, "x:" + x + " " + "y:" + y + " " + "z:" + z, {5, 45}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
     putText(des, "color:" + color, {45, 15}, FONT_HERSHEY_PLAIN, fontsize, colors[pack.color], thickness);
     putText(des, "type:" + type_, {135, 15}, FONT_HERSHEY_PLAIN, fontsize, fontcolor, thickness);
-}
-
-/*
- * 筛选最佳装甲板，无结果返回false, 判断依据为boundingbox面积
- */
-bbox_t &Find_Best_Armor(vector<bbox_t> &res, string &Camera_Name, bool &flag)
-{
-    flag = true;
-    std::sort(res.begin(), res.end(), [](bbox_t &res1, bbox_t &res2)
-              { return Get_Area(res1.pts) > Get_Area(res2.pts); }); // 按面积进行从大到小排序
-    if (Camera_Name == "Sentry")                                    // 若是哨兵，选择击打颜色来区分友方敌方
-    {
-        for (auto &x : res)
-        {
-            if (x.color_id == Enemy_Color) // 从大到小寻找敌方最大装甲板
-            {
-                flag = true;
-                return x;
-            }
-        }
-        flag = false;
-    }
-    return res[0];
 }
 
 /*
@@ -112,6 +76,7 @@ DataPack &Find_Best_Armor(vector<DataPack> &pack, const string &Camera_Name, boo
     flag = true;
     sort(pack.begin(), pack.end(), [](DataPack &pack1, DataPack &pack2)
          { return pack1.dist > pack2.dist; });
+
     if (Camera_Name == "Sentry")
     {
         for (auto &x : pack)

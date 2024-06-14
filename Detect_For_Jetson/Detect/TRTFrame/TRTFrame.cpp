@@ -6,12 +6,33 @@
 #include <logger.h>
 #include <fstream>
 #include <cuda.h>
-#include "Format_Print.hpp"
+#include "../FormatInfo/Format_Print.hpp"
 #include <filesystem>
+#include "../Utils/Utils.hpp"
 using namespace nvinfer1;
 using namespace cv;
 using namespace std;
 using namespace sample;
+
+/*
+ *  @brief 检查断言
+ *
+ *  @param expr 表达式
+ *
+ *  @note   若表达式为真，则打印错误信息并退出程序
+ */
+#define Assert(expr)                                       \
+    do                                                     \
+    {                                                      \
+        if (expr)                                          \
+        {                                                  \
+            printf(__CLEAR__                               \
+                       __HIGHLIGHT__ __FRED__ #expr "\n"); \
+            exit(-1);                                      \
+        }                                                  \
+    } while (0)
+
+// #expr可以将expr替换为对应的字符串。
 
 /*形参包展开，真tm难用*/
 /*注意constexpt使得表达式在编译期确定从而使之无空递归条件*/
@@ -239,11 +260,36 @@ void TRTFrame::Create_Engine_From_Onnx(const string &onnx_file)
     Assert(parser == nullptr);
     bool parser_success = parser->parseFromFile(onnx_file.c_str(), static_cast<int>(ILogger::Severity::kINFO));
     Assert(parser_success == false);
-    network->getInput(0)->setName(input_name.c_str());
-    network->getOutput(0)->setName(output_name.c_str());
+    if (param.topk)
+    {
+        /*select topk*/
+        auto raw_output = network->getOutput(0);
+        auto slice_layer = network->addSlice(*raw_output, Dims3{0, 0, param.conf_pos}, Dims3{1, outputDims.dim2, 1}, Dims3{1, 1, 1});
+        auto raw_conf = slice_layer->getOutput(0);
+        auto shuffle_layer = network->addShuffle(*raw_conf);
+        shuffle_layer->setReshapeDimensions(Dims2{1, outputDims.dim2});
+        raw_conf = shuffle_layer->getOutput(0);
+        auto topk_layer = network->addTopK(*raw_conf, TopKOperation::kMAX, param.topk_num, 1 << 1);
+        auto topk_idx = topk_layer->getOutput(1);
+        auto gather_layer = network->addGather(*raw_output, *topk_idx, 1);
+        gather_layer->setNbElementWiseDims(1);
+        auto output_topk = gather_layer->getOutput(0);
+        output_topk->setName(output_name.c_str());
+        network->getInput(0)->setName(input_name.c_str());
+        network->markOutput(*output_topk);
+        network->unmarkOutput(*raw_output);
+    }
+    else
+    {
+        network->getInput(0)->setName(input_name.c_str());
+        network->getOutput(0)->setName(output_name.c_str());
+    }
     auto config = builder->createBuilderConfig();
     if (builder->platformHasFastFp16())
+    {
         PrintInfo("Platform support FP16, enable FP16");
+        config->setFlag(BuilderFlag::kFP16);
+    }
     else
         PrintInfo("Plantform do not support FP16, enable FP32");
     size_t free, total;
@@ -277,11 +323,36 @@ void TRTFrame::Create_Serialized_Engine(const string &onnx_file)
     Assert(parser == nullptr);
     bool parser_success = parser->parseFromFile(onnx_file.c_str(), static_cast<int>(ILogger::Severity::kINFO));
     Assert(parser_success == false);
-    network->getInput(0)->setName(input_name.c_str());
-    network->getOutput(0)->setName(output_name.c_str());
+    if (param.topk)
+    {
+        /*select topk*/
+        auto raw_output = network->getOutput(0);
+        auto slice_layer = network->addSlice(*raw_output, Dims3{0, 0, param.conf_pos}, Dims3{1, outputDims.dim2, 1}, Dims3{1, 1, 1});
+        auto raw_conf = slice_layer->getOutput(0);
+        auto shuffle_layer = network->addShuffle(*raw_conf);
+        shuffle_layer->setReshapeDimensions(Dims2{1, outputDims.dim2});
+        raw_conf = shuffle_layer->getOutput(0);
+        auto topk_layer = network->addTopK(*raw_conf, TopKOperation::kMAX, param.topk_num, 1 << 1);
+        auto topk_idx = topk_layer->getOutput(1);
+        auto gather_layer = network->addGather(*raw_output, *topk_idx, 1);
+        gather_layer->setNbElementWiseDims(1);
+        auto output_topk = gather_layer->getOutput(0);
+        output_topk->setName(output_name.c_str());
+        network->getInput(0)->setName(input_name.c_str());
+        network->markOutput(*output_topk);
+        network->unmarkOutput(*raw_output);
+    }
+    else
+    {
+        network->getInput(0)->setName(input_name.c_str());
+        network->getOutput(0)->setName(output_name.c_str());
+    }
     auto config = builder->createBuilderConfig();
     if (builder->platformHasFastFp16())
+    {
         PrintInfo("Platform support FP16, enable FP16");
+        config->setFlag(BuilderFlag::kFP16);
+    }
     else
         PrintInfo("Plantform do not support FP16, enable FP32");
     size_t free, total;
@@ -500,14 +571,18 @@ void TRTFrame::NMS(vector<float> &output_tensor, vector<vector<float>> &res_tens
     for (int i = 0; i < outputDims.dim2; i++)
     {
         if (output_tensor[i * outputDims.dim3 + param.conf_pos] < param.conf_thre)
-            continue;
+            if (!param.topk)
+                continue;
+            else
+                break;
         tmp_store.emplace_back(
             vector<float>(output_tensor.begin() + i * outputDims.dim3,
                           output_tensor.begin() + i * outputDims.dim3 + outputDims.dim3));
     }
-    sort(tmp_store.begin(), tmp_store.end(),
-         [this](vector<float> box1, vector<float> box2)
-         { return box1[param.conf_pos] > box2[param.conf_pos]; });
+    if (!param.topk)
+        sort(tmp_store.begin(), tmp_store.end(),
+             [this](vector<float> box1, vector<float> box2)
+             { return box1[param.conf_pos] > box2[param.conf_pos]; });
     vector<float> Res;
     vector<bool> Removed(outputDims.dim2, false);
     for (int i = 0; i < tmp_store.size(); i++)
@@ -549,13 +624,17 @@ void TRTFrame::NMS(vector<vector<float>> &res_tensor)
     for (int i = 0; i < outputDims.dim2; i++)
     {
         if (host_buffer[i * outputDims.dim3 + param.conf_pos] < conf_thre)
-            continue;
+            if (!param.topk)
+                continue;
+            else
+                break;
         else
             res_tensor.emplace_back(host_buffer + i * outputDims.dim3, host_buffer + i * outputDims.dim3 + outputDims.dim3);
     }
-    sort(res_tensor.begin(), res_tensor.end(),
-         [this](vector<float> box1, vector<float> box2)
-         { return box1[param.conf_pos] > box2[param.conf_pos]; });
+    if (!param.topk)
+        sort(res_tensor.begin(), res_tensor.end(),
+             [this](vector<float> box1, vector<float> box2)
+             { return box1[param.conf_pos] > box2[param.conf_pos]; });
     vector<bool> removed(res_tensor.size(), false);
     for (int i = 0; i < res_tensor.size(); i++)
     {
@@ -583,6 +662,7 @@ void TRTFrame::NMS(vector<vector<float>> &res_tensor)
  *  @return none
  *
  */
+
 void TRTFrame::Preprocess(Mat &src, Mat &blob)
 {
     fx = src.cols / (float)param.input_size.width;
@@ -639,13 +719,6 @@ void TRTFrame::Show_xyxyxyxy(Mat &img, vector<BoxInfo> &box_infos)
         line(img, Point(info.box[2], info.box[3]), Point(info.box[4], info.box[5]), Scalar(0, 255, 0), 2);
         line(img, Point(info.box[4], info.box[5]), Point(info.box[6], info.box[7]), Scalar(0, 255, 0), 2);
         line(img, Point(info.box[6], info.box[7]), Point(info.box[0], info.box[1]), Scalar(0, 255, 0), 2);
-        putText(img, "0." + to_string(int(sigmoid(info.confidence) * 100)), Point(info.box[0], info.box[1]), FONT_HERSHEY_PLAIN, 2.0, Scalar(0, 255, 0), 2);
-        putText(img, info.classes[1].second, Point(info.box[6], info.box[7]), FONT_HERSHEY_PLAIN, 3.0,
-                info.classes[0].second == "Red" ? Scalar(0, 0, 255) : info.classes[0].second == "Blue" ? Scalar(255, 0, 0)
-                                                                  : info.classes[0].second == "Green"  ? Scalar(128, 128, 128)
-                                                                  : info.classes[0].second == "Purple" ? Scalar(128, 0, 128)
-                                                                                                       : Scalar(255, 255, 255),
-                2);
     }
 }
 
@@ -661,6 +734,7 @@ void TRTFrame::Show_xyxyxyxy(Mat &img, vector<BoxInfo> &box_infos)
 void TRTFrame::Run(Mat &src, vector<BoxInfo> &box_infos)
 {
     Mat blob;
+
     /*预处理*/
     Preprocess(src, blob);
 
@@ -671,5 +745,7 @@ void TRTFrame::Run(Mat &src, vector<BoxInfo> &box_infos)
     vector<vector<float>> res_tensor;
     NMS(res_tensor);
     Postprocess(res_tensor, box_infos);
+
+    /*显示结果*/
     Show_xyxyxyxy(src, box_infos);
 }

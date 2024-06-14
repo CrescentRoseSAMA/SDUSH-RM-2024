@@ -26,10 +26,27 @@ enum box_type
  *  @brief 定义推理参数
  *
  *  @note  该结构体用于定义推理参数，包括预处理、后处理等参数
+ *         topk: 是否使用topk输出
+ *         topk_num: topk输出的最大数量
+ *         cvt_code: 图像预处理时的转换代码
+ *         input_size: 推理输入尺寸
+ *         normalize: 是否对图像进行归一化
+ *         hwc2chw: 是否将图像从HWC转为CHW
+ *         type: 推理输出的box类型
+ *         conf_pos: 推理输出中置信度的位置
+ *         box_pos: 推理输出中box信息的起始位置
+ *         conf_thre: 置信度阈值
+ *         iou_thre: IOU阈值
+ *         has_sigmoid: 网络的输出是否经过sigmoid激活
+ *         classes_info: 类别信息
  */
 
 struct InferParam
 {
+    /*infer param*/
+    bool topk;
+    int topk_num;
+
     /*preprocess param*/
     int cvt_code;
     cv::Size input_size;
@@ -54,6 +71,11 @@ struct InferParam
     std::vector<class_info> classes_info;
 };
 
+/*
+ *  @brief  3维向量类型
+ *
+ *  @note  3维向量类型，用于表示输出的tensor的维度
+ */
 struct Dim3d
 {
     int dim1;
@@ -94,6 +116,7 @@ struct BoxInfo
     {
     }
 };
+
 /*
  *  @brief 基于TensorRT的onnx推理框架类
  *

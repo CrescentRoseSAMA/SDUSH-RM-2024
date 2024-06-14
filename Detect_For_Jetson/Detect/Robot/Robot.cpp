@@ -19,19 +19,21 @@ Robot::Robot(const string &camera_name, int idx)
  *
  */
 
-vector<DataPack> Robot::Solve(const vector<bbox_t> &Res)
+vector<DataPack> Robot::Solve(const vector<BoxInfo> &Res)
 {
+    vector<DataPack> data;
     for (auto Armor : Res)
     {
-        auto data = solver.Solve(Armor.pts);
-        data.color = Color(Armor.color_id);
-        data.id = Armor.tag_id;
-        Pack.push_back(data);
+        auto tmp = solver.Solve(Armor.box);
+        tmp.color = Color(Armor.classes[0].first);
+        tmp.id = Armor.classes[1].first;
+        data.push_back(tmp);
     }
-    if (Pack.size() >= 2)
+#if 0
+    if (data.size() >= 2)
     {
-        DataPack Armor_1 = Pack[0];
-        DataPack Armor_2 = Pack[1];
+        DataPack Armor_1 = data[0];
+        DataPack Armor_2 = data[1];
         double Len = Euclid_vec(Armor_1.tvec, Armor_2.tvec);
         Mat Armor_1_z_unitvec = (Mat_<double>(3, 1) << 0, 0, 1);
         Mat Armor_2_z_unitvec = Armor_1_z_unitvec.clone();
@@ -42,22 +44,8 @@ vector<DataPack> Robot::Solve(const vector<bbox_t> &Res)
         double angle = Angle_vec(Unitvec1_P_c, Unitvec2_P_c);
         center_r = Len / 2 * sin(angle / 2);
     }
-    else
-        cout << "ID: " << Res[0].tag_id << "=====装甲板不满两个，无法估计中心=====\n";
-    return Pack;
-}
-
-/*
- *  @brief: 手动释放装甲板数据
- *
- *  @param: void
- *
- *  @return: void
- *
- */
-void Robot::Release()
-{
-    Pack.clear();
+#endif
+    return data;
 }
 
 /*

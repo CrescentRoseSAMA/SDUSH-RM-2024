@@ -3,10 +3,11 @@
 #include <chrono>
 #include <iostream>
 #include <cmath>
+#include "../TRTFrame/TRTFrame.hpp"
 #include "../AngleSolver/AngleSolver.hpp"
-#include "../TRTModule/TRTModule.hpp"
 #include "../MvCamera/MvCamera.h"
 
+const cv::Scalar colors[4]{cv::Scalar(255, 0, 0), cv::Scalar(0, 0, 255), cv::Scalar(128, 128, 128), cv::Scalar(128, 0, 128)};
 /*
  * 计时类
  */
@@ -33,21 +34,21 @@ struct Data_Classifier
 {
     bool id_exist[10];
     char id_mapto_boxid[10];
-    std::vector<std::vector<bbox_t>> Box;
+    std::vector<std::vector<BoxInfo>> Box;
     Data_Classifier() : id_exist{false}, id_mapto_boxid{-1} {};
-    void Clsassify(std::vector<bbox_t> &box)
+    void Clsassify(std::vector<BoxInfo> &box)
     {
         for (auto &x : box)
         {
-            if (!id_exist[x.tag_id])
+            if (!id_exist[x.classes[1].first])
             {
-                id_exist[x.tag_id] = true;
-                std::vector<bbox_t> tmp{x};
+                id_exist[x.classes[1].first] = true;
+                std::vector<BoxInfo> tmp{x};
                 Box.emplace_back(tmp);
-                id_mapto_boxid[x.tag_id] = Box.size() - 1;
+                id_mapto_boxid[x.classes[1].first] = Box.size() - 1;
             }
             else
-                Box[id_mapto_boxid[x.tag_id]].emplace_back(x);
+                Box[id_mapto_boxid[x.classes[1].first]].emplace_back(x);
         }
     }
 
@@ -60,7 +61,5 @@ struct Data_Classifier
  */
 void Show_Data(DataPack &pack, cv::Mat &des, cv::Scalar fontcolor = cv::Scalar(0, 128, 255), int fontsize = 1, int thickness = 1);
 double Get_Area(cv::Point2f pts[4]);                                                                // 通过海伦公式计算不规则装甲板的面积
-bbox_t &Find_Best_Armor(std::vector<bbox_t> &res, std::string &Camera_Name, bool &flag);            // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
-DataPack &Find_Best_Armor(std::vector<DataPack> &pack, const std::string &Camera_Name, bool &flag); // 选择当前最佳装甲板，以像素面积以及敌友方进行筛选
-void Plot_Box(std::vector<bbox_t> &res, cv::Mat &img);                                              // 在当前帧图像上画出识别到的装甲板
+DataPack &Find_Best_Armor(std::vector<DataPack> &pack, const std::string &Camera_Name, bool &flag); // 选择当前最佳装甲板，以距离以及敌友方进行筛选
 #endif
