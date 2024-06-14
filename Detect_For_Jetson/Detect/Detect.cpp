@@ -134,7 +134,7 @@ int main()
 #if 1
     Timer cnt;
     TRTFrame Detector(onnx_file4, param);
-    VideoCapture cap("../Assets/test.mp4");
+    VideoCapture cap("../Assets/a.mp4");
     string name = "Auto_Name";
     Robot Bot[10];
     for (int i = 0; i < 10; i++)

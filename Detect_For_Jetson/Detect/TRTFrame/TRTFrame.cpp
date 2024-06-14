@@ -171,11 +171,16 @@ TRTFrame::TRTFrame(const string &onnx_file, const InferParam &param_) : param(pa
     {
         Create_Engine_From_Serialization((const string)engine_file_path.c_str());
     }
-    else
+    else if (filesystem::exists(onnx_file_path))
     {
         Create_Engine_From_Onnx(onnx_file);
 
         Save_Serialized_Engine(engine_file_path);
+    }
+    else
+    {
+        PrintInfo("Can not find onnx file or engine file");
+        Assert(true);
     }
     Assert(engine == nullptr);
     context = engine->createExecutionContext();
