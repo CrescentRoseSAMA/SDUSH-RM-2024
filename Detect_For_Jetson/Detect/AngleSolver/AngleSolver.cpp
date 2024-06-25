@@ -55,16 +55,6 @@ void AngleSolver::Get_Armor_Type(const cv::Point2f pos[4])
      */
 }
 
-void AngleSolver::Get_Armor_Type(const vector<float> &pos_xyxyxyxy)
-{
-    double W = pos_xyxyxyxy[6] - pos_xyxyxyxy[0]; // tr - tl 长度
-    double H = pos_xyxyxyxy[3] - pos_xyxyxyxy[1]; // bl - tl 宽度
-    double Ratio = W / H;
-    if (Decide.cnt < 50)
-        Type = Decide.Decide(Ratio);
-    else
-        Type = Decide.Final_Type();
-}
 /*
  *  @brief: 获取装甲板四个顶点的世界坐标
  *
@@ -153,14 +143,6 @@ void AngleSolver::Get_P_uv(const cv::Point2f P_uv_[4])
     P_uv.push_back(cv::Point2f(P_uv_[1])); // bl
 }
 
-void AngleSolver::Get_P_uv(const vector<float> &P_uv_xyxyxyxy)
-{
-    P_uv.clear();
-    P_uv.push_back(cv::Point2f(P_uv_xyxyxyxy[0], P_uv_xyxyxyxy[1])); // tl
-    P_uv.push_back(cv::Point2f(P_uv_xyxyxyxy[6], P_uv_xyxyxyxy[7])); // tr
-    P_uv.push_back(cv::Point2f(P_uv_xyxyxyxy[4], P_uv_xyxyxyxy[5])); // br
-    P_uv.push_back(cv::Point2f(P_uv_xyxyxyxy[2], P_uv_xyxyxyxy[3])); // bl
-}
 /*
  *  @brief: 角度解算函数, 计算装甲板四个顶点的世界坐标，并计算相机与装甲板的距离，俯仰角，偏航角
  *
@@ -200,20 +182,6 @@ DataPack AngleSolver::Solve(const cv::Point2f P_uv_[4])
 
     if (!Decide.Decided)
         Get_Armor_Type(P_uv_);
-
-    Pnp_Solve();
-
-    // Offset_Compensate();
-
-    return Pack();
-}
-
-DataPack AngleSolver::Solve(const vector<float> &P_uv_xyxyxyx)
-{
-    Get_P_uv(P_uv_xyxyxyx);
-
-    if (!Decide.Decided)
-        Get_Armor_Type(P_uv_xyxyxyx);
 
     Pnp_Solve();
 

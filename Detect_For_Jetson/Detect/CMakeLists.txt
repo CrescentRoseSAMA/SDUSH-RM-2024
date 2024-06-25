@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "Debug")
+# set(CMAKE_BUILD_TYPE "Release")
 project(Detect)
 
 add_executable(Detect Detect.cpp)
@@ -19,9 +19,9 @@ include_directories(MvCamera)
 add_subdirectory(MvCamera)
 target_link_libraries(Detect MvCamera)
 
-include_directories(TRTFrame)
-add_subdirectory(TRTFrame)
-target_link_libraries(Detect TRTFrame)
+include_directories(TRTModule)
+add_subdirectory(TRTModule)
+target_link_libraries(Detect Module)
 
 include_directories(Utils)
 add_subdirectory(Utils)

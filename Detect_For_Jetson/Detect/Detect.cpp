@@ -1,4 +1,4 @@
-#include "TRTFrame/TRTFrame.hpp"
+#include "TRTModule/TRTModule.hpp"
 #include "AngleSolver/AngleSolver.hpp"
 #include "MvCamera/MvCamera.h"
 #include "Serial/Serial.h"
@@ -20,33 +20,56 @@ using namespace std;
  * Mat类的size成员返回矩阵的（宽，高），即返回一个以像素坐标为基准的size类。
  * 其中 宽(Width) = cols（列数），高(height) = rows（行数）
  */
-const InferParam param{
-    /*infer param*/
-    .topk = false,
-    .topk_num = 128,
-    /*preprocess param*/
-    .cvt_code = COLOR_BGR2RGB,
-    .input_size = Size(640, 384),
-    .normalize = false,
-    .hwc2chw = false,
 
-    /*postprocess param*/
-    .type = xyxyxyxy,
-    .conf_pos = 8,
-    .box_pos = 0,
-    .conf_thre = 0.6,
-    .iou_thre = 0.5,
-    .has_sigmoid = false,
-
-    /*class info*/
-
-    .classes_info{{{"Blue", "Red", "Gray", "Purple"}, 9, 4}, {{"guard", "1", "2", "3", "4", "5", "base"}, 13, 7}},
-};
 int main()
 {
-#if 1
+
+#if !DEBUG
     Timer cnt;
-    TRTFrame Detector(onnx_file4, param);
+    TRTModule Detector(onnx_file4);
+    VideoCapture Cap(0);
+    string name = "Auto_Name";
+    Robot Bot[10];
+    for (int i = 0; i < 10; i++)
+        Bot[i] = Robot(name, i);
+    Serial Seri;
+    Seri.uart_setup();
+    Mat img;
+    while (true)
+    {
+        Data_Classifier Classifier;
+        Cap.read(img);
+        auto Res = Detector(img);
+        if (!Res.empty())
+        {
+            cout << "Aim's Num : " << Res.size() << endl;
+            cout << "Process Start" << endl;
+            Classifier.Clsassify(Res);
+            vector<DataPack> Pack;
+            for (auto &x : Classifier)
+            {
+                auto p = Bot[x[0].tag_id].Solve(x);
+                Pack.insert(Pack.end(), p.begin(), p.end()); // 合并;
+                Bot[x[0].tag_id].Release();
+            }
+
+            bool flag = true;
+            auto Armor = Find_Best_Armor(Pack, name, flag);
+            Show(Armor);
+            if (flag)
+                Seri.send(Armor, true);
+            cout << "Process End" << endl;
+        }
+        else
+            Seri.send(0, 0, 0, 0, 0, 0, false);
+        Plot_Box(Res, img);
+        imshow("show", img);
+        waitKey(10);
+    }
+#endif
+#if DEBUG
+    Timer cnt;
+    TRTModule Detector(onnx_file4);
     VideoCapture cap("../Assets/Armor.mp4");
     string name = "Auto_Name";
     Robot Bot[10];
@@ -58,30 +81,37 @@ int main()
     while (true)
     {
         cap.read(img);
-        vector<BoxInfo> box_infos;
         cnt.Start();
-        Detector.Run(img, box_infos);
-        if (!box_infos.empty())
+        Data_Classifier Classifier;
+        auto Res = Detector(img);
+        if (!Res.empty())
         {
-            Data_Classifier classifier;
-            classifier.Clsassify(box_infos);
-            vector<DataPack> Data;
-            for (const auto &Armor : classifier)
+
+            cout << "Aim's Num : " << Res.size() << endl;
+            cout << "Process Start" << endl;
+            Classifier.Clsassify(Res);
+            vector<DataPack> Pack;
+            for (auto &x : Classifier)
             {
-                auto p = Bot[Armor[0].classes[1].first].Solve(Armor);
-                Data.insert(Data.end(), p.begin(), p.end());
+                auto p = Bot[x[0].tag_id].Solve(x);
+                Pack.insert(Pack.end(), p.begin(), p.end()); // 合并;
+                Bot[x[0].tag_id].Release();
             }
+
             bool flag = true;
-            auto Armor = Find_Best_Armor(Data, name, flag);
-            Show_Data(Armor, img, Scalar(0, 0, 255), 1, 2);
+            auto Armor = Find_Best_Armor(Pack, name, flag);
+            Show_Data(Armor, img, Scalar(0, 0, 255), 1, 1);
             if (flag)
                 Seri.send(Armor, true);
+            cout << "Process End" << endl;
         }
+        else
+            Seri.send(0, 0, 0, 0, 0, 0, false);
+        Plot_Box(Res, img);
         cnt.End();
         imshow("show", img);
-        waitKey(10);
+        waitKey(1);
     }
-
 #endif
     return 0;
 }

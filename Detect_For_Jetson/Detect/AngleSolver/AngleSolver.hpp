@@ -88,8 +88,7 @@ enum Color
 {
     Blue = 0,
     Red,
-    Gray,
-    Purple,
+    Gray
 }; // 定义参考上交TRTModule.hpp中的color.id设置
 const Color Friend_Color = Blue;
 const Color Enemy_Color = Red;
@@ -134,17 +133,14 @@ public:
     AngleSolver(const std::string &name);
 
     void Get_Armor_Type(const cv::Point2f pos[4]);
-    void Get_Armor_Type(const std::vector<float> &pos_xyxyxyxy);
 
     std::vector<cv::Point3f> Get_P_w();
 
     void Get_P_uv(const cv::Point2f P_uv[4]);
-    void Get_P_uv(const std::vector<float> &P_uv_xyxyxyxy);
 
     void Pnp_Solve();
 
     DataPack Solve(const cv::Point2f Point2D[4]);
-    DataPack Solve(const std::vector<float> &Point2D_xyxyxyxy);
 
     void Offset_Compensate();
     void Gravity_Compensate();
